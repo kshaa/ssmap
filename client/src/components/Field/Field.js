@@ -1,16 +1,13 @@
-import React, {
-	Component
-} from 'react';
-import block from 'bem-cn';
+// eslint-disable-next-line
+import React from 'react'
+import Component from 's/components/Component/Component'
 
 export default class Field extends Component {
 	render() {
-        let {fieldType, fieldValue, fieldRequired, fieldDisabled} = this.props;
-        let {skin, children} = this.props;
-		let b = block(fieldType)
+        let {children, fieldType, fieldValue, fieldRequired, fieldDisabled} = this.props
 
 		return (
-            <input className={b({skin})}
+            <input className={this.getSkinnedBlockClass('field')}
                 type={fieldType}
                 value={fieldValue}
                 required={fieldRequired}

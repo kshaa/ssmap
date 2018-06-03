@@ -1,3 +1,8 @@
 # SSMap
 Show ss.com posts on a map
-This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app) and then ejected.
+
+#### Client
+Bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app) and ejected
+
+#### Server
+Currently missing, but to be written w/ Node

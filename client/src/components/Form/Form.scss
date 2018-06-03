@@ -1,0 +1,23 @@
+// This isn't in use yet, but I wanted
+// to see whether style imports work
+@import '~s/styling/constants';
+@import '~s/styling/mixins';
+
+.form {
+    @include modifier('padding') {
+        padding: $spacing;
+    }
+
+    @include modifier('centered') {
+        display: block;
+        margin-right: auto;
+        margin-left: auto; 
+        max-width: 400px; 
+    }
+
+    @include element('content') {
+        @include modifier('margin') {
+            margin: $spacing;
+        }
+    }
+}
