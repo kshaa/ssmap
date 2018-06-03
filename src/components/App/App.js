@@ -1,9 +1,9 @@
 import React, {
 	Component
 } from 'react';
-import Body from '../Body/Body';
-import Form from '../Form/Form';
-import Field from '../Field/Field';
+import Body from 's/components/Body/Body';
+import Form from 's/components/Form/Form';
+import Field from 's/components/Field/Field';
 
 export default class App extends Component {
 	render() {
