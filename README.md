@@ -5,4 +5,4 @@ Show ss.com posts on a map
 Bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app) and ejected
 
 #### Server
-Currently missing, but to be written w/ Node
+Koa server with one api

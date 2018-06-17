@@ -1,0 +1,18 @@
+{
+  "name": "ssmap",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "glob": "^7.1.2",
+    "jsdom": "^11.11.0",
+    "koa": "^2.5.1",
+    "koa-bodyparser": "^4.2.1",
+    "koa-router": "^7.4.0",
+    "node-fetch": "^2.1.2",
+    "url-parse": "^1.4.1"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "debug": "node --inspect-brk=20826 index.js"
+  }
+}
