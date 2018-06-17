@@ -145,7 +145,7 @@ export default class App extends Component {
 	}
 
 	render() {
-		const googleApiKey = "AIzaSyAiGjOJdfqh3Wd2Se5RcTBiEM3UIgOvNK8"
+		const googleApiKey = process.env.REACT_APP_GOOGLE_API_KEY
 		const landscapeClass = this.state.isLandscape ? 'horizontal' : 'vertical'
 
 		return (
