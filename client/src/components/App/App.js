@@ -89,7 +89,7 @@ export default class App extends Component {
 		if (!postJson ||
 			(postJson && !postJson.status) ||
 			(postJson.status && postJson.status === 'fail')) {
-			const errorMessage = postJson.message || "Nu ir ziepes, kaut kas pavisam neizdevās. Atvaino!"
+			const errorMessage = postJson && postJson.message || "Nu ir ziepes, kaut kas pavisam neizdevās. Atvaino!"
 			this.addErrorMessage(errorMessage)
 
 			return;
