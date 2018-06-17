@@ -2,16 +2,16 @@
 import React from 'react'
 import Form from 's/components/Form/Form'
 import Field from 's/components/Field/Field'
-import queryString from 'query-string'
+import URL from 'url-parse'
 
 export default class PostForm extends Form {
     constructor(props) {
         super(props)
 
-        const urlQuery = queryString.parse(window.location.search)
+        const url = new URL(window.location.href, true)
         this.state = {
             form: {
-                url: urlQuery.post || 'Ievadiet sludinājuma saiti'
+                url: url.query.post || ''
             }
         }
     
