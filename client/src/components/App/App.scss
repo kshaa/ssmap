@@ -1,0 +1,50 @@
+@import '~s/styling/constants';
+@import '~s/styling/typography';
+@import '~s/styling/bem-mixins';
+
+* {
+    box-sizing: border-box;
+    color: $martinique;
+}
+
+strong {
+    font-family: $roboto;
+    font-weight: bold;
+}
+
+*:not(strong) {
+    font-family: $openSans;
+}
+
+.error {
+    margin-top: $spacing;
+    opacity: 0.9;
+    background: $pink;
+    border-color: darken($pink, $contrast-hard);
+    border-width: 1px;
+    border-radius: 3px;
+    border-style: solid;
+
+    @include element('container') {
+        margin: 20px auto;
+        position: absolute;
+        right: 0;
+        left: 0;
+        width: 100%;
+        max-width: $pageWidthMin;
+        z-index: 2;
+    }
+
+    @include element('icon') {
+        display: inline-block;
+        margin: 0 25px 0 15px;
+        font-size: 22px;
+        color: $monza;
+        transform: scale(2);
+    }
+
+    @include element('text') {
+        margin: 20px 10px;
+        color: $monza;
+    }
+}

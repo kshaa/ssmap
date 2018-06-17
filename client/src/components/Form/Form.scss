@@ -1,23 +1,34 @@
-// This isn't in use yet, but I wanted
-// to see whether style imports work
 @import '~s/styling/constants';
-@import '~s/styling/mixins';
+@import '~s/styling/bem-mixins';
 
 .form {
-    @include modifier('padding') {
+    @include modifier('default') {
+        width: 100%;
+        max-width: $pageWidthMin;
+    }
+
+    // Wrapper, because margin is for centering
+    // but also we might need an actual fixed-size non-centering margin
+    @include modifier('margin') {
         padding: $spacing;
     }
 
     @include modifier('centered') {
         display: block;
         margin-right: auto;
-        margin-left: auto; 
-        max-width: 400px; 
+        margin-left: auto;
     }
 
+    // The actual visual form
     @include element('content') {
-        @include modifier('margin') {
-            margin: $spacing;
+        @include modifier('padding') {
+            padding: $spacing;
+        }
+
+        @include modifier('border') {
+            @include value('light') {
+                border: 1px solid $mercury;
+            }
         }
     }
 }
