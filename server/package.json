@@ -2,8 +2,8 @@
   "name": "ssmap",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
-    "glob": "^7.1.2",
     "jsdom": "^11.11.0",
     "koa": "^2.5.1",
     "koa-bodyparser": "^4.2.1",
@@ -11,8 +11,20 @@
     "node-fetch": "^2.1.2",
     "url-parse": "^1.4.1"
   },
+  "devDependencies": {
+    "@types/jsdom": "^21.1.0",
+    "@types/koa": "^2.13.5",
+    "@types/koa-bodyparser": "^4.3.10",
+    "@types/koa-router": "^7.4.4",
+    "@types/node": "^18.0.0",
+    "@types/node-fetch": "^2.6.2",
+    "@types/url-parse": "^1.4.8",
+    "typescript": "^5.0.0"
+  },
   "scripts": {
-    "start": "node index.js",
-    "debug": "node --inspect-brk=20826 index.js"
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js",
+    "dev": "tsc && node dist/index.js",
+    "debug": "npm run build && node --inspect-brk=20826 dist/index.js"
   }
 }
