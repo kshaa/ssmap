@@ -49,6 +49,7 @@
 .google-maps {
     @include default() {
         height: 100%;     
+        width: 100%;
     }
 
     @include element('wrapper') {

@@ -1,4 +1,4 @@
-export default function postData(url, data) {
+export default function postData(url: string, data: any): Promise<any> {
     // Default options are marked with *
     return fetch(url, {
         body: JSON.stringify(data), // must match 'Content-Type' header
@@ -16,3 +16,4 @@ export default function postData(url, data) {
         return response.json()
     })
 }
+

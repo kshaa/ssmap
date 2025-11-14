@@ -1,0 +1,25 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react",
+    "outDir": "./build",
+    "baseUrl": ".",
+    "paths": {
+      "s/*": ["./src/*"]
+    },
+    "allowJs": true,
+    "noEmit": true
+  },
+  "include": [
+    "src/**/*",
+    "../shared/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "scripts",
+    "config"
+  ]
+}
+
