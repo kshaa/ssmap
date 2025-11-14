@@ -19,12 +19,13 @@
     "@types/node": "^18.0.0",
     "@types/node-fetch": "^2.6.2",
     "@types/url-parse": "^1.4.8",
+    "tsc-alias": "^1.8.8",
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "build": "tsc",
-    "start": "npm run build && node dist/index.js",
-    "dev": "tsc && node dist/index.js",
-    "debug": "npm run build && node --inspect-brk=20826 dist/index.js"
+    "build": "tsc && tsc-alias",
+    "start": "npm run build && node dist/server/index.js",
+    "dev": "tsc && tsc-alias && node dist/server/index.js",
+    "debug": "npm run build && node --inspect-brk=20826 dist/server/index.js"
   }
 }

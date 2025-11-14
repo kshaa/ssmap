@@ -2,7 +2,7 @@ import Router from 'koa-router';
 import fetch from 'node-fetch';
 import URL from 'url-parse';
 import { JSDOM } from 'jsdom';
-import * as postParser from './postParser.js';
+import * as postParser from '@src/api/post/postParser.js';
 import { Context, Next } from 'koa';
 
 const post = new Router();

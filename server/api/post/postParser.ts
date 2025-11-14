@@ -1,3 +1,5 @@
+import { Coordinates, AddressInfo, GenericInfo } from '@shared/types.js';
+
 interface InfoField {
     value: string;
     fieldNode: HTMLElement;
@@ -5,22 +7,6 @@ interface InfoField {
 
 interface InfoFields {
     [key: string]: InfoField;
-}
-
-interface Coordinates {
-    lat: number;
-    lng: number;
-}
-
-interface AddressInfo {
-    city?: string;
-    state?: string;
-    street?: string;
-    coordinates?: Coordinates;
-}
-
-interface GenericInfo {
-    [key: string]: string;
 }
 
 function getPostInfoFields(document: Document): InfoFields {
@@ -185,9 +171,6 @@ export {
     getPostGenericInfo,
     getPostAddressInfo,
     getPostPrice,
-    getPostTitle,
-    GenericInfo,
-    AddressInfo,
-    Coordinates
+    getPostTitle
 };
 

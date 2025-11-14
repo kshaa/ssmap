@@ -1,7 +1,7 @@
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import { Server } from 'http';
-import postRouter from './api/post/index.js';
+import postRouter from '@src/api/post/index.js';
 
 const app = new Koa();
 
