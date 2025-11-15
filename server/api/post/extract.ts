@@ -2,7 +2,10 @@ import Router from 'koa-router';
 import fetch from 'node-fetch';
 import URL from 'url-parse';
 import { JSDOM } from 'jsdom';
-import * as postParser from '@src/api/post/postParser.js';
+import { getPostGenericInfo } from '@src/services/postParser/getPostGenericInfo.js';
+import { getPostAddressInfo } from '@src/services/postParser/getPostAddressInfo.js';
+import { getPostPrice } from '@src/services/postParser/getPostPrice.js';
+import { getPostTitle } from '@src/services/postParser/getPostTitle.js';
 import { Context, Next } from 'koa';
 
 const post = new Router();
@@ -56,10 +59,10 @@ post.post('/post', async (ctx: Context, next: Next) => {
             });
         
             try {
-                const genericInfo = postParser.getPostGenericInfo(ssdom.window.document);
-                const addressInfo = postParser.getPostAddressInfo(ssdom.window.document);
-                const price = postParser.getPostPrice(ssdom.window.document);
-                const title = postParser.getPostTitle(ssdom.window.document);
+                const genericInfo = getPostGenericInfo(ssdom.window.document);
+                const addressInfo = getPostAddressInfo(ssdom.window.document);
+                const price = getPostPrice(ssdom.window.document);
+                const title = getPostTitle(ssdom.window.document);
 
                 ctx.body = {
                     status: 'success',

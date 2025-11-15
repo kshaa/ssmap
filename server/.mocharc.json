@@ -1,0 +1,11 @@
+{
+  "extensions": ["ts"],
+  "spec": ["test/**/*.test.ts"],
+  "node-option": [
+    "import=tsx/esm",
+    "no-warnings"
+  ],
+  "timeout": 5000,
+  "async-only": false
+}
+
