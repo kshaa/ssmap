@@ -11,17 +11,17 @@ import { Context, Next } from 'koa';
 const post = new Router();
 
 function isHostnameSS(hostname: string): boolean {
-    return !!hostname.match(/^(www\.)?ss\.(com|lv)$/);
+    return !!hostname.match(/^(www\.)?ss\.lv$/);
 }
 
 function validateUrl(url: string): string {
     const parsedUrl = new URL(url);
 
     if (!isHostnameSS(parsedUrl.hostname)) {
-        throw new Error('Sludinājuma saitei kaut kas nav');
+        throw new Error('Saite nav no ss.lv');
     }
     
-    return parsedUrl.toString().replace(/\/ru\//, '/lv/'); // Parse only LV ss.com (too lazy to implement both) :D
+    return parsedUrl.toString()
 }
 
 post.post('/post', async (ctx: Context, next: Next) => {

@@ -36,7 +36,7 @@ module.exports = function(proxy, allowedHost) {
     server: protocol === 'https' ? 'https' : 'http',
     
     host: host,
-    port: 3000,
+    port: 3002,
     
     // History API fallback for SPA - don't apply to files with extensions
     historyApiFallback: {

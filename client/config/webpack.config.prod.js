@@ -81,6 +81,7 @@ module.exports = {
     alias: {
       // Resolve source for absolute paths
       's': path.resolve('src'),
+      '@shared': path.resolve(__dirname, '../../shared'),
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
       'react-native': 'react-native-web',

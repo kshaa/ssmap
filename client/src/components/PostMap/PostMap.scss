@@ -53,12 +53,28 @@
     }
 
     @include element('wrapper') {
-        height: 400px;
+        height: 400px !important;
         width: 100%;
 
         @include modifier('horizontal') {
-            height: calc(100vh - 150px);
+            height: calc(100vh - 150px) !important;
+        }
+
+        // Ensure Leaflet container takes full height
+        .leaflet-container {
+            height: 100% !important;
+            width: 100%;
+            z-index: 1;
         }
     }
+}
+
+// Ensure popups display nicely
+.leaflet-popup-content-wrapper {
+    border-radius: 4px;
+}
+
+.leaflet-popup-content {
+    margin: 10px;
 }
 

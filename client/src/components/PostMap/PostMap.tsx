@@ -1,12 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useBemClassName } from 's/hooks/useBemClassName';
-import { GoogleMap, Marker, InfoWindow, useLoadScript } from '@react-google-maps/api';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import './PostMap.scss';
 import { PostList as PostListType, PostWithUI, Coordinates } from '@shared/types';
 
+// Fix for default marker icon in Leaflet with Webpack
+const markerIcon2x = require('leaflet/dist/images/marker-icon-2x.png').default;
+const markerIcon = require('leaflet/dist/images/marker-icon.png').default;
+const markerShadow = require('leaflet/dist/images/marker-shadow.png').default;
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: markerIcon2x,
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
+});
+
 interface PostMapProps {
     postList: PostListType;
-    googleApiKey: string;
     defaultCenter: Coordinates;
     defaultZoom: number;
     focusedPost: PostWithUI | null;
@@ -15,30 +28,23 @@ interface PostMapProps {
 
 const PostMap = ({ 
     postList, 
-    googleApiKey, 
     defaultCenter, 
     defaultZoom, 
     focusedPost,
     skin = {}
 }: PostMapProps) => {
-    const [openMarkers, setOpenMarkers] = useState<{ [key: string]: boolean }>({});
     const { getSkinnedBlockClass, getSkinnedElementClass } = useBemClassName(skin);
+    const mapRef = useRef<L.Map | null>(null);
 
+    // Update map center when focusedPost changes
     useEffect(() => {
-        if (focusedPost && focusedPost.url) {
-            setOpenMarkers(prev => ({
-                ...prev,
-                [focusedPost.url!]: true
-            }));
+        if (mapRef.current && focusedPost?.addressInfo?.coordinates) {
+            mapRef.current.setView(
+                [focusedPost.addressInfo.coordinates.lat, focusedPost.addressInfo.coordinates.lng],
+                defaultZoom
+            );
         }
-    }, [focusedPost]);
-
-    const toggleMarker = (url: string) => {
-        setOpenMarkers(prev => ({
-            ...prev,
-            [url]: !prev[url]
-        }));
-    };
+    }, [focusedPost, defaultZoom]);
 
     const renderPostInfo = (post: PostWithUI) => {
         const postInfos = Object
@@ -47,7 +53,7 @@ const PostMap = ({
                 return (
                     <div key={attribute} className={getSkinnedElementClass('maps-info-box', 'entry')}>
                         <strong className={getSkinnedElementClass('maps-info-box', 'attribute')}>{attribute}:</strong>
-                        <span className={getSkinnedElementClass('maps-info-box', 'value')}>{value}</span>
+                        <span className={getSkinnedElementClass('maps-info-box', 'value')}>{String(value)}</span>
                     </div>
                 );
             });
@@ -76,19 +82,14 @@ const PostMap = ({
             return null;
         }
 
-        const isOpen = openMarkers[post.url] || false;
-
         return (
             <Marker
                 key={post.url}
-                position={coordinates}
-                onClick={() => toggleMarker(post.url!)}
+                position={[coordinates.lat, coordinates.lng]}
             >
-                {isOpen && (
-                    <InfoWindow onCloseClick={() => toggleMarker(post.url!)}>
-                        <>{renderPostInfo(post)}</>
-                    </InfoWindow>
-                )}
+                <Popup closeButton={true}>
+                    {renderPostInfo(post)}
+                </Popup>
             </Marker>
         );
     };
@@ -105,43 +106,23 @@ const PostMap = ({
 
     return (
         <div className={getSkinnedBlockClass('google-maps')}>
-            <LoadScriptWrapper apiKey={googleApiKey}>
-                <GoogleMap
-                    mapContainerClassName={getSkinnedElementClass('google-maps', 'wrapper')}
-                    center={mapCenter}
-                    zoom={defaultZoom}
-                    options={{
-                        zoomControl: true,
-                        mapTypeControl: false,
-                        scaleControl: false,
-                        streetViewControl: false,
-                        rotateControl: false,
-                        fullscreenControl: true
-                    }}
-                >
-                    {renderPostMarkers()}
-                </GoogleMap>
-            </LoadScriptWrapper>
+            <MapContainer
+                className={getSkinnedElementClass('google-maps', 'wrapper')}
+                center={[mapCenter.lat, mapCenter.lng]}
+                zoom={defaultZoom}
+                zoomControl={true}
+                scrollWheelZoom={true}
+                ref={mapRef}
+                style={{ height: '100%', width: '100%' }}
+            >
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {renderPostMarkers()}
+            </MapContainer>
         </div>
     );
 };
 
 export default PostMap;
-
-// Helper component to load Google Maps script
-const LoadScriptWrapper = ({ apiKey, children }: { apiKey: string, children: React.ReactNode }) => {
-    const { isLoaded, loadError } = useLoadScript({
-        googleMapsApiKey: apiKey,
-        libraries: ['geometry', 'drawing', 'places'] as any
-    });
-
-    if (loadError) {
-        return <div style={{ height: '100%', textAlign: 'center' }}>Kļūda ielādējot karti</div>;
-    }
-
-    if (!isLoaded) {
-        return <div style={{ height: '100%', textAlign: 'center' }}>Karte veras vaļā!</div>;
-    }
-
-    return <>{children}</>;
-};

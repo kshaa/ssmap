@@ -103,7 +103,6 @@ const App = () => {
 		};
 	};
 
-	const googleApiKey = process.env.REACT_APP_GOOGLE_API_KEY || '';
 	const landscapeClass = isLandscape ? 'horizontal' : 'vertical';
 
 	return (
@@ -131,7 +130,6 @@ const App = () => {
 					/>
 					<PostMap
 						postList={postList}
-						googleApiKey={googleApiKey}
 						defaultCenter={mapCenterCoordinates}
 						defaultZoom={mapZoom}
 						focusedPost={focusedPost}
