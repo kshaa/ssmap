@@ -1,45 +1,41 @@
-'use strict';
+'use strict'
 
 // Do this as the first thing so that any code reading it knows the right env.
-process.env.BABEL_ENV = 'development';
-process.env.NODE_ENV = 'development';
+process.env.BABEL_ENV = 'development'
+process.env.NODE_ENV = 'development'
 
 // Makes the script crash on unhandled rejections instead of silently
 // ignoring them. In the future, promise rejections that are not handled will
 // terminate the Node.js process with a non-zero exit code.
 process.on('unhandledRejection', err => {
-  throw err;
-});
+  throw err
+})
 
 // Ensure environment variables are read.
-require('../config/env');
+require('../config/env')
 
-const fs = require('fs');
-const chalk = require('chalk');
-const webpack = require('webpack');
-const WebpackDevServer = require('webpack-dev-server');
-const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
-const {
-  choosePort,
-  prepareProxy,
-  prepareUrls,
-} = require('react-dev-utils/WebpackDevServerUtils');
-const openBrowser = require('react-dev-utils/openBrowser');
-const paths = require('../config/paths');
-const config = require('../config/webpack.config.dev');
-const createDevServerConfig = require('../config/webpackDevServer.config');
+const fs = require('fs')
+const chalk = require('chalk')
+const webpack = require('webpack')
+const WebpackDevServer = require('webpack-dev-server')
+const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles')
+const { choosePort, prepareProxy, prepareUrls } = require('react-dev-utils/WebpackDevServerUtils')
+const openBrowser = require('react-dev-utils/openBrowser')
+const paths = require('../config/paths')
+const config = require('../config/webpack.config.dev')
+const createDevServerConfig = require('../config/webpackDevServer.config')
 
-const useYarn = fs.existsSync(paths.yarnLockFile);
-const isInteractive = process.stdout.isTTY;
+const useYarn = fs.existsSync(paths.yarnLockFile)
+const isInteractive = process.stdout.isTTY
 
 // Warn and crash if required files are missing
 if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
-  process.exit(1);
+  process.exit(1)
 }
 
 // Tools like Cloud9 rely on this.
-const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3002;
-const HOST = process.env.HOST || '0.0.0.0';
+const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3002
+const HOST = process.env.HOST || '0.0.0.0'
 
 if (process.env.HOST) {
   console.log(
@@ -48,12 +44,10 @@ if (process.env.HOST) {
         chalk.bold(process.env.HOST)
       )}`
     )
-  );
-  console.log(
-    `If this was unintentional, check that you haven't mistakenly set it in your shell.`
-  );
-  console.log(`Learn more here: ${chalk.yellow('http://bit.ly/2mwWSwH')}`);
-  console.log();
+  )
+  console.log(`If this was unintentional, check that you haven't mistakenly set it in your shell.`)
+  console.log(`Learn more here: ${chalk.yellow('http://bit.ly/2mwWSwH')}`)
+  console.log()
 }
 
 // We attempt to use the default port but if it is busy, we offer the user to
@@ -62,97 +56,98 @@ choosePort(HOST, DEFAULT_PORT)
   .then(port => {
     if (port == null) {
       // We have not found a port.
-      return;
+      return
     }
-    const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
-    const appName = require(paths.appPackageJson).name;
-    const urls = prepareUrls(protocol, HOST, port);
-    
+    const protocol = process.env.HTTPS === 'true' ? 'https' : 'http'
+    const appName = require(paths.appPackageJson).name
+    const urls = prepareUrls(protocol, HOST, port)
+
     // Create webpack compiler
-    const compiler = webpack(config);
-    
+    const compiler = webpack(config)
+
     // User-friendly messages
     compiler.hooks.invalid.tap('invalid', () => {
       if (isInteractive) {
-        console.clear();
+        console.clear()
       }
-      console.log('Compiling...');
-    });
+      console.log('Compiling...')
+    })
 
     compiler.hooks.done.tap('done', async stats => {
       if (isInteractive) {
-        console.clear();
+        console.clear()
       }
 
       const statsData = stats.toJson({
         all: false,
         warnings: true,
         errors: true,
-      });
+      })
 
       if (statsData.errors && statsData.errors.length > 0) {
-        console.log(chalk.red('Failed to compile.\n'));
+        console.log(chalk.red('Failed to compile.\n'))
         statsData.errors.forEach(err => {
-          console.log(err.message || err);
-          console.log();
-        });
-        return;
+          console.log(err.message || err)
+          console.log()
+        })
+        return
       }
 
       if (statsData.warnings && statsData.warnings.length > 0) {
-        console.log(chalk.yellow('Compiled with warnings.\n'));
+        console.log(chalk.yellow('Compiled with warnings.\n'))
         statsData.warnings.forEach(warn => {
-          console.log(warn.message || warn);
-          console.log();
-        });
+          console.log(warn.message || warn)
+          console.log()
+        })
       } else {
-        console.log(chalk.green('Compiled successfully!'));
+        console.log(chalk.green('Compiled successfully!'))
       }
 
-      console.log();
-      console.log('You can now view ' + chalk.bold(appName) + ' in the browser.');
-      console.log();
-      console.log('  ' + chalk.bold('Local:            ') + urls.localUrlForBrowser);
-      console.log('  ' + chalk.bold('On Your Network:  ') + urls.lanUrlForBrowser);
-      console.log();
-      console.log('Note that the development build is not optimized.');
-      console.log('To create a production build, use ' + chalk.cyan(`${useYarn ? 'yarn' : 'npm run'} build`) + '.');
-      console.log();
-    });
+      console.log()
+      console.log('You can now view ' + chalk.bold(appName) + ' in the browser.')
+      console.log()
+      console.log('  ' + chalk.bold('Local:            ') + urls.localUrlForBrowser)
+      console.log('  ' + chalk.bold('On Your Network:  ') + urls.lanUrlForBrowser)
+      console.log()
+      console.log('Note that the development build is not optimized.')
+      console.log(
+        'To create a production build, use ' +
+          chalk.cyan(`${useYarn ? 'yarn' : 'npm run'} build`) +
+          '.'
+      )
+      console.log()
+    })
 
     // Load proxy config
-    const proxySetting = require(paths.appPackageJson).proxy;
-    const proxyConfig = prepareProxy(proxySetting, paths.appPublic);
-    
+    const proxySetting = require(paths.appPackageJson).proxy
+    const proxyConfig = prepareProxy(proxySetting, paths.appPublic)
+
     // Serve webpack assets generated by the compiler over a web server.
-    const serverConfig = createDevServerConfig(
-      proxyConfig,
-      urls.lanUrlForConfig
-    );
-    
-    const devServer = new WebpackDevServer(serverConfig, compiler);
-    
+    const serverConfig = createDevServerConfig(proxyConfig, urls.lanUrlForConfig)
+
+    const devServer = new WebpackDevServer(serverConfig, compiler)
+
     // Launch WebpackDevServer.
     devServer.startCallback(() => {
       if (isInteractive) {
-        console.clear();
+        console.clear()
       }
-      console.log(chalk.cyan('Starting the development server...\n'));
+      console.log(chalk.cyan('Starting the development server...\n'))
       if (isInteractive) {
-        openBrowser(urls.localUrlForBrowser);
+        openBrowser(urls.localUrlForBrowser)
       }
-    });
+    })
 
-    ['SIGINT', 'SIGTERM'].forEach(sig => {
+    ;['SIGINT', 'SIGTERM'].forEach(sig => {
       process.on(sig, () => {
-        devServer.close();
-        process.exit();
-      });
-    });
+        devServer.close()
+        process.exit()
+      })
+    })
   })
   .catch(err => {
     if (err && err.message) {
-      console.log(err.message);
+      console.log(err.message)
     }
-    process.exit(1);
-  });
+    process.exit(1)
+  })

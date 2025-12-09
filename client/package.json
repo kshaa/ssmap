@@ -63,7 +63,9 @@
     "dev": "node scripts/start.js",
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js --env=jsdom"
+    "test": "node scripts/test.js --env=jsdom",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\" \"config/**/*.js\" \"scripts/**/*.js\"",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\" \"config/**/*.js\" \"scripts/**/*.js\""
   },
   "jest": {
     "collectCoverageFrom": [
@@ -116,6 +118,10 @@
   },
   "eslintConfig": {
     "extends": "react-app",
+    "rules": {
+      "semi": ["error", "never"],
+      "@typescript-eslint/semi": ["error", "never"]
+    },
     "overrides": [
       {
         "files": [
@@ -151,6 +157,7 @@
     "@types/react-dom": "^18.2.0",
     "@typescript-eslint/eslint-plugin": "^5.60.0",
     "@typescript-eslint/parser": "^5.60.0",
+    "prettier": "^3.7.4",
     "ts-loader": "^9.4.0",
     "typescript": "^5.0.0"
   }

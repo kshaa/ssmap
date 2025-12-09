@@ -2,53 +2,53 @@
 @import '~s/styling/bem-mixins';
 
 .text {
+  @include default() {
+    border-width: 0 0 1px;
+    border-color: $mercury;
+    transition: $time-fast border-color;
+    height: 40px;
+    outline: none;
+
+    &:hover {
+      border-color: darken($mercury, $contrast-medium);
+    }
+
+    &:focus {
+      border-color: darken($mercury, $contrast-hard);
+    }
+  }
+
+  @include modifier('width') {
+    @include value('full') {
+      width: 100%;
+    }
+  }
+
+  @include element('wrapper') {
     @include default() {
-        border-width:   0 0 1px;
-        border-color:   $mercury;
-        transition:     $time-fast border-color;
-        height:         40px;
-        outline:        none;
-
-        &:hover {
-            border-color: darken($mercury, $contrast-medium);
-        }
-
-        &:focus {
-            border-color: darken($mercury, $contrast-hard);
-        }
+      display: flex;
+      flex-direction: column-reverse;
     }
+  }
 
-    @include modifier('width') {
-        @include value('full') {
-            width: 100%;
-        }
+  @include element('label') {
+    @include default() {
+      font-weight: bold;
+
+      &:before {
+        display: inline-block;
+        content: '✤';
+        margin: 0 0 10px;
+        opacity: 0;
+        max-width: 0px;
+        transition: $time-regular;
+      }
+
+      .text:focus + &:before {
+        margin: 0 10px 10px 4px;
+        max-width: 15px;
+        opacity: 1;
+      }
     }
-
-    @include element('wrapper') {
-        @include default() {
-            display: flex;
-            flex-direction: column-reverse;
-        }
-    }
-
-    @include element('label') {
-        @include default() {
-            font-weight: bold;
-
-            &:before {
-                display: inline-block;
-                content: '✤';
-                margin: 0 0 10px;
-                opacity: 0;
-                max-width: 0px;
-                transition: $time-regular;
-            }
-
-            .text:focus + &:before {
-                margin: 0 10px 10px 4px;
-                max-width: 15px;
-                opacity: 1;
-            }
-        }
-    }
+  }
 }

@@ -28,6 +28,7 @@
     "@types/url-parse": "^1.4.8",
     "chai": "^4.3.10",
     "mocha": "^10.2.0",
+    "prettier": "^3.7.4",
     "tsc-alias": "^1.8.8",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.7.0",
@@ -38,6 +39,8 @@
     "start": "npm run build && node dist/server/index.js",
     "dev": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths && node dist/server/index.js",
     "debug": "npm run build && node --inspect-brk=20826 dist/server/index.js",
-    "test": "mocha"
+    "test": "mocha",
+    "format": "prettier --write \"**/*.{js,ts,json,md}\" \"!dist/**\" \"!node_modules/**\"",
+    "format:check": "prettier --check \"**/*.{js,ts,json,md}\" \"!dist/**\" \"!node_modules/**\""
   }
 }

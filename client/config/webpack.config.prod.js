@@ -1,39 +1,39 @@
-'use strict';
+'use strict'
 
-const autoprefixer = require('autoprefixer');
-const path = require('path');
-const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
-const { GenerateSW } = require('workbox-webpack-plugin');
-const ESLintPlugin = require('eslint-webpack-plugin');
-const paths = require('./paths');
-const getClientEnvironment = require('./env');
+const autoprefixer = require('autoprefixer')
+const path = require('path')
+const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
+const { GenerateSW } = require('workbox-webpack-plugin')
+const ESLintPlugin = require('eslint-webpack-plugin')
+const paths = require('./paths')
+const getClientEnvironment = require('./env')
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
-const publicPath = paths.servedPath;
+const publicPath = paths.servedPath
 // Some apps do not use client-side routing with pushState.
 // For these, "homepage" can be set to "." to enable relative asset paths.
-const shouldUseRelativeAssetPaths = publicPath === './';
+const shouldUseRelativeAssetPaths = publicPath === './'
 // Source maps are resource heavy and can cause out of memory issue for large source files.
-const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
+const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false'
 // `publicUrl` is just like `publicPath`, but we will provide it to our app
 // as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
 // Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
-const publicUrl = publicPath.slice(0, -1);
+const publicUrl = publicPath.slice(0, -1)
 // Get environment variables to inject into our app.
-const env = getClientEnvironment(publicUrl);
+const env = getClientEnvironment(publicUrl)
 
 // Assert this just to be safe.
 // Development builds of React are slow and not intended for production.
 if (env.stringified['process.env'].NODE_ENV !== '"production"') {
-  throw new Error('Production builds must have NODE_ENV=production.');
+  throw new Error('Production builds must have NODE_ENV=production.')
 }
 
 // Note: defined here because it will be used more than once.
-const cssFilename = 'static/css/[name].[contenthash:8].css';
+const cssFilename = 'static/css/[name].[contenthash:8].css'
 
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
@@ -58,9 +58,7 @@ module.exports = {
     publicPath: publicPath,
     // Point sourcemap entries to original disk location (format as URL on Windows)
     devtoolModuleFilenameTemplate: info =>
-      path
-        .relative(paths.appSrc, info.absoluteResourcePath)
-        .replace(/\\/g, '/'),
+      path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, '/'),
   },
   resolve: {
     // This allows you to set a fallback for where Webpack should look for modules.
@@ -77,10 +75,21 @@ module.exports = {
     // https://github.com/facebookincubator/create-react-app/issues/290
     // `web` extension prefixes have been added for better support
     // for React Native Web.
-    extensions: ['.web.ts', '.ts', '.web.tsx', '.tsx', '.web.js', '.mjs', '.js', '.json', '.web.jsx', '.jsx'],
+    extensions: [
+      '.web.ts',
+      '.ts',
+      '.web.tsx',
+      '.tsx',
+      '.web.js',
+      '.mjs',
+      '.js',
+      '.json',
+      '.web.jsx',
+      '.jsx',
+    ],
     alias: {
       // Resolve source for absolute paths
-      's': path.resolve('src'),
+      s: path.resolve('src'),
       '@shared': path.resolve(__dirname, '../../shared'),
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
@@ -88,10 +97,10 @@ module.exports = {
     },
     // Polyfills for Node.js core modules (webpack 5)
     fallback: {
-      "url": require.resolve("url"),
-      "querystring": require.resolve("querystring-es3"),
-      "buffer": require.resolve("buffer"),
-      "process": require.resolve("process/browser"),
+      url: require.resolve('url'),
+      querystring: require.resolve('querystring-es3'),
+      buffer: require.resolve('buffer'),
+      process: require.resolve('process/browser'),
     },
   },
   module: {
@@ -142,7 +151,6 @@ module.exports = {
             include: paths.appSrc,
             loader: require.resolve('babel-loader'),
             options: {
-              
               compact: true,
             },
           },
@@ -175,9 +183,12 @@ module.exports = {
                   postcssOptions: {
                     plugins: [
                       'postcss-flexbugs-fixes',
-                      ['autoprefixer', {
-                        flexbox: 'no-2009',
-                      }],
+                      [
+                        'autoprefixer',
+                        {
+                          flexbox: 'no-2009',
+                        },
+                      ],
                     ],
                   },
                   sourceMap: shouldUseSourceMap,
@@ -192,9 +203,9 @@ module.exports = {
             use: [
               MiniCssExtractPlugin.loader,
               require.resolve('css-loader'),
-              require.resolve('sass-loader')
-            ]
-          },                  
+              require.resolve('sass-loader'),
+            ],
+          },
           // "file" loader makes sure assets end up in the `build` folder.
           // When you `import` an asset, you get its filename.
           // This loader doesn't use a "test" so it will catch all modules
@@ -283,4 +294,4 @@ module.exports = {
   optimization: {
     minimize: true,
   },
-};
+}

@@ -4,9 +4,8 @@ import 'normalize.css'
 import App from 's/components/App/App'
 import registerServiceWorker from './registerServiceWorker'
 
-const container = document.getElementById('root');
-const root = createRoot(container!);
-root.render(<App />);
+const container = document.getElementById('root')
+const root = createRoot(container!)
+root.render(<App />)
 
-registerServiceWorker();
-
+registerServiceWorker()

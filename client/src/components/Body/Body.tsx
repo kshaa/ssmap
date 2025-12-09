@@ -1,21 +1,17 @@
-import React from 'react';
-import { useBemClassName } from 's/hooks/useBemClassName';
-import './Body.scss';
+import React from 'react'
+import { useBemClassName } from 's/hooks/useBemClassName'
+import './Body.scss'
 
 interface BodyProps {
-	children?: React.ReactNode;
-	skin?: any;
-	className?: string;
+  children?: React.ReactNode
+  skin?: any
+  className?: string
 }
 
 const Body = ({ children, skin = {} }: BodyProps) => {
-	const { getSkinnedBlockClass } = useBemClassName(skin);
+  const { getSkinnedBlockClass } = useBemClassName(skin)
 
-	return (
-		<div className={getSkinnedBlockClass('body', {height: 'full'})}>
-			{children}
-		</div>
-	);
-};
+  return <div className={getSkinnedBlockClass('body', { height: 'full' })}>{children}</div>
+}
 
-export default Body;
+export default Body

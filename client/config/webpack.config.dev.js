@@ -1,23 +1,23 @@
-'use strict';
+'use strict'
 
-const autoprefixer = require('autoprefixer');
-const path = require('path');
-const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-const ESLintPlugin = require('eslint-webpack-plugin');
-const getClientEnvironment = require('./env');
-const paths = require('./paths');
+const autoprefixer = require('autoprefixer')
+const path = require('path')
+const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
+const ESLintPlugin = require('eslint-webpack-plugin')
+const getClientEnvironment = require('./env')
+const paths = require('./paths')
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // In development, we always serve from the root. This makes config easier.
-const publicPath = '/';
+const publicPath = '/'
 // `publicUrl` is just like `publicPath`, but we will provide it to our app
 // as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
 // Omit trailing slash as %PUBLIC_PATH%/xyz looks better than %PUBLIC_PATH%xyz.
-const publicUrl = '';
+const publicUrl = ''
 // Get environment variables to inject into our app.
-const env = getClientEnvironment(publicUrl);
+const env = getClientEnvironment(publicUrl)
 
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
@@ -79,10 +79,21 @@ module.exports = {
     // https://github.com/facebookincubator/create-react-app/issues/290
     // `web` extension prefixes have been added for better support
     // for React Native Web.
-    extensions: ['.web.ts', '.ts', '.web.tsx', '.tsx', '.web.js', '.mjs', '.js', '.json', '.web.jsx', '.jsx'],
+    extensions: [
+      '.web.ts',
+      '.ts',
+      '.web.tsx',
+      '.tsx',
+      '.web.js',
+      '.mjs',
+      '.js',
+      '.json',
+      '.web.jsx',
+      '.jsx',
+    ],
     alias: {
       // Resolve source for absolute paths
-      's': path.resolve('src'),
+      s: path.resolve('src'),
       '@shared': path.resolve(__dirname, '../../shared'),
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
@@ -90,10 +101,10 @@ module.exports = {
     },
     // Polyfills for Node.js core modules (webpack 5)
     fallback: {
-      "url": require.resolve("url"),
-      "querystring": require.resolve("querystring-es3"),
-      "buffer": require.resolve("buffer"),
-      "process": require.resolve("process/browser"),
+      url: require.resolve('url'),
+      querystring: require.resolve('querystring-es3'),
+      buffer: require.resolve('buffer'),
+      process: require.resolve('process/browser'),
     },
   },
   module: {
@@ -145,7 +156,6 @@ module.exports = {
             include: paths.appSrc,
             loader: require.resolve('babel-loader'),
             options: {
-              
               // This is a feature of `babel-loader` for webpack (not Babel itself).
               // It enables caching results in ./node_modules/.cache/babel-loader/
               // directory for faster rebuilds.
@@ -173,9 +183,12 @@ module.exports = {
                   postcssOptions: {
                     plugins: [
                       'postcss-flexbugs-fixes',
-                      ['autoprefixer', {
-                        flexbox: 'no-2009',
-                      }],
+                      [
+                        'autoprefixer',
+                        {
+                          flexbox: 'no-2009',
+                        },
+                      ],
                     ],
                   },
                 },
@@ -189,9 +202,9 @@ module.exports = {
             use: [
               require.resolve('style-loader'),
               require.resolve('css-loader'),
-              require.resolve('sass-loader')
-            ]
-          },        
+              require.resolve('sass-loader'),
+            ],
+          },
           // "file" loader makes sure those assets get served by WebpackDevServer.
           // When you `import` an asset, you get its (virtual) filename.
           // In production, they would get copied to the `build` folder.
@@ -202,12 +215,7 @@ module.exports = {
             // its runtime that would otherwise processed through "file" loader.
             // Also exclude `html` and `json` extensions so they get processed
             // by webpacks internal loaders.
-            exclude: [
-              /\.(js|jsx|mjs|ts|tsx)$/,
-              /\.html$/,
-              /\.json$/,
-              /\.s(a|c)ss$/
-            ],
+            exclude: [/\.(js|jsx|mjs|ts|tsx)$/, /\.html$/, /\.json$/, /\.s(a|c)ss$/],
             loader: require.resolve('file-loader'),
             options: {
               name: 'static/media/[name].[hash:8].[ext]',
@@ -262,4 +270,4 @@ module.exports = {
   performance: {
     hints: false,
   },
-};
+}

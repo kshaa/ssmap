@@ -2,103 +2,103 @@
 @import '~s/styling/bem-mixins';
 
 .post-list {
+  @include modifier('vertical') {
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+    width: 100%;
+    max-width: $pageWidthMax;
+  }
+
+  @include modifier('horizontal') {
+    min-width: $sidebarWidth;
+    max-width: $sidebarWidth;
+    height: calc(100vh - 150px);
+  }
+
+  @include element('title') {
     @include modifier('vertical') {
-        display: block;
-        margin-right: auto;
-        margin-left: auto; 
-        width: 100%;
-        max-width: $pageWidthMax;
+      display: none;
     }
 
     @include modifier('horizontal') {
-        min-width: $sidebarWidth;
-        max-width: $sidebarWidth;
-        height: calc(100vh - 150px);
+      display: inline-block;
+      padding: $spacing;
+      border-width: 1px 0 1px;
+      border-color: $mercury;
+      border-style: solid;
+      min-width: 100%;
+    }
+  }
+
+  @include element('content') {
+    @include default() {
+      padding: $spacing;
+      display: block;
+      width: 100%;
     }
 
-    @include element('title') {
-        @include modifier('vertical') {
-            display: none;
-        }
-
-        @include modifier('horizontal') {
-            display: inline-block;
-            padding: $spacing;
-            border-width: 1px 0 1px;
-            border-color: $mercury;
-            border-style: solid;
-            min-width: 100%;
-        }
+    @include modifier('horizontal') {
+      max-height: calc(100% - 61px);
+      min-height: calc(100% - 61px);
+      overflow-y: scroll;
     }
-
-    @include element('content') {
-        @include default() {
-            padding: $spacing;
-            display: block;
-            width: 100%;
-        }
-
-        @include modifier('horizontal') {
-            max-height: calc(100% - 61px);
-            min-height: calc(100% - 61px);
-            overflow-y: scroll;
-        }
-    }
+  }
 }
 
 .post {
-    @include default() {
-        margin-bottom: $spacing;
-        display: block;
-        padding: 10px;
-        border-style: solid;
-        border-width: 1px;
-        border-radius: 3px;
-        border-color: $mercury;
-        transition: $time-fast;
+  @include default() {
+    margin-bottom: $spacing;
+    display: block;
+    padding: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 3px;
+    border-color: $mercury;
+    transition: $time-fast;
 
-        &:hover {
-            border-color: darken($mercury, $contrast-hard);
-        }
+    &:hover {
+      border-color: darken($mercury, $contrast-hard);
+    }
+  }
+
+  @include element('title') {
+    max-height: 46px;
+    line-height: 22px;
+    transition: $time-fast;
+    overflow: hidden;
+
+    &:hover {
+      max-height: 92px;
+    }
+  }
+
+  @include element('action-bar') {
+    position: relative;
+    margin-top: 10px;
+    padding: 25px 0 15px;
+    border-top: 1px solid $mercury;
+  }
+
+  @include element('remove') {
+    position: absolute;
+    right: 5px;
+    bottom: 13px;
+    max-height: 26px;
+    border: 0;
+    background: transparent;
+    color: $monza;
+    transform: scale(1.5);
+    transition: $time-fast;
+    outline: 0;
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.8);
     }
 
-    @include element('title') {
-        max-height: 46px;
-        line-height: 22px;
-        transition: $time-fast;
-        overflow: hidden;
-
-        &:hover {
-            max-height: 92px;
-        }
+    &:active {
+      transform: scale(2);
     }
-
-    @include element('action-bar') {
-        position: relative;
-        margin-top: 10px;
-        padding: 25px 0 15px;
-        border-top: 1px solid $mercury;
-    }
-
-    @include element('remove') {
-        position: absolute;
-        right: 5px;
-        bottom: 13px;
-        max-height: 26px;
-        border: 0;
-        background: transparent;
-        color: $monza;
-        transform: scale(1.5);
-        transition: $time-fast;
-        outline: 0;
-        cursor: pointer;
-
-        &:hover {
-            transform: scale(1.8);
-        }
-
-        &:active {
-            transform: scale(2);
-        }
-    }
+  }
 }

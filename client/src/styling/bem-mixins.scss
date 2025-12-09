@@ -2,31 +2,31 @@
  * BEM helpers
  */
 @mixin element($element) {
-    &__#{$element} {
-        @content;
-    }
+  &__#{$element} {
+    @content;
+  }
 }
 
 @mixin modifier($modifier) {
-    &--#{$modifier} {
-        @content;
-    }
+  &--#{$modifier} {
+    @content;
+  }
 }
 
 @mixin value($value) {
-    &-#{$value} {
-        @content;
-    }
+  &-#{$value} {
+    @content;
+  }
 }
 
 @mixin state($value) {
-    &.is-#{$value} {
-        @content;
-    }
+  &.is-#{$value} {
+    @content;
+  }
 }
 
 @mixin default() {
-    @include modifier('default') {
-        @content;
-    }
+  @include modifier('default') {
+    @content;
+  }
 }
