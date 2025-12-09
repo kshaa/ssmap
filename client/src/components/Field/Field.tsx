@@ -1,5 +1,5 @@
 import React from 'react'
-import { useBemClassName } from 's/hooks/useBemClassName'
+import { useBemClassName } from '@src/hooks/useBemClassName'
 import './Field.scss'
 
 interface FieldProps {

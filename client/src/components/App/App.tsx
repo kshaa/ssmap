@@ -1,16 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { useBemClassName } from 's/hooks/useBemClassName'
-import Body from 's/components/Body/Body'
-import PostForm from 's/components/PostForm/PostForm'
-import PostList from 's/components/PostList/PostList'
-import PostMap from 's/components/PostMap/PostMap'
+import { useBemClassName } from '@src/hooks/useBemClassName'
+import Body from '@src/components/Body/Body'
+import PostForm from '@src/components/PostForm/PostForm'
+import PostList from '@src/components/PostList/PostList'
+import PostMap from '@src/components/PostMap/PostMap'
 import './App.scss'
-import {
-  Post,
-  PostList as PostListType,
-  PostWithUI,
-  Coordinates,
-} from '../../../../../shared/types'
+import { ParsedPostWithUrl, Coordinates } from '@shared/post'
+import { PostWithUI, PostListType } from '@src/components/PostList/PostList'
 
 const latviaZoom = 7
 const latviaCoordinates: Coordinates = { lat: 56.8796, lng: 24.6032 }
@@ -37,13 +33,6 @@ const App = () => {
     }
   }, [recheckLandscape])
 
-  const preparePost = (postJson: Post): PostWithUI => {
-    return {
-      ...postJson,
-      isOpen: true,
-    }
-  }
-
   const removeError = useCallback((removableErrorMessage: string) => {
     setErrorList(prevErrors =>
       prevErrors.filter(errorMessage => errorMessage !== removableErrorMessage)
@@ -57,33 +46,17 @@ const App = () => {
     }, 4000)
   }
 
-  const handlePostResponse = (postJson: Post | null) => {
-    if (
-      !postJson ||
-      (postJson && !postJson.status) ||
-      (postJson.status && postJson.status === 'fail')
-    ) {
-      const errorMessage =
-        (postJson && postJson.message) || 'Nu ir ziepes, kaut kas pavisam neizdevās. Atvaino!'
-      addErrorMessage(errorMessage)
-      return
+  const appendPost = (post: ParsedPostWithUrl) => {
+    const fondledPost = {
+      ...post,
+      isOpen: true,
     }
-
-    if (!postJson.addressInfo || !postJson.addressInfo.coordinates) {
-      const errorMessage = 'Izskatās, ka šim sludinājumam nav adreses :('
-      addErrorMessage(errorMessage)
-      return
-    }
-
-    const fondledPost = preparePost(postJson)
-    if (postJson.url) {
-      setPostList(prevList => ({
-        ...prevList,
-        [postJson.url!]: fondledPost,
-      }))
-      setFocusedPost(fondledPost)
-      setMapZoom(13)
-    }
+    setPostList(prevList => ({
+      ...prevList,
+      [post.url]: fondledPost,
+    }))
+    setFocusedPost(fondledPost)
+    setMapZoom(13)
   }
 
   const removePost = (removablePost: PostWithUI) => {
@@ -126,7 +99,7 @@ const App = () => {
           ))}
       </div>
       <Body className={getSkinnedBlockClass('body')}>
-        <PostForm handlePostResponse={handlePostResponse} />
+        <PostForm addErrorMessage={addErrorMessage} appendPost={appendPost} />
         <div className={getSkinnedBlockClass('info-wrapper', { [landscapeClass]: true })}>
           <PostList
             postList={postList}

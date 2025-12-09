@@ -6,7 +6,7 @@
     "outDir": "./build",
     "baseUrl": ".",
     "paths": {
-      "s/*": ["./src/*"],
+      "@src/*": ["./src/*"],
       "@shared/*": ["../shared/*"]
     },
     "allowJs": true,

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useBemClassName } from 's/hooks/useBemClassName'
+import { useBemClassName } from '@src/hooks/useBemClassName'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import './PostMap.scss'
-import { PostList as PostListType, PostWithUI, Coordinates } from '@shared/types'
+import { PostList as PostListType, PostWithUI, Coordinates } from '@shared/post'
 
 // Fix for default marker icon in Leaflet with Webpack
 const markerIcon2x = require('leaflet/dist/images/marker-icon-2x.png').default

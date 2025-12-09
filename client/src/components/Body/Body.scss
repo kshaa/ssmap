@@ -1,4 +1,4 @@
-@import '~s/styling/bem-mixins';
+@import '~@src/styling/bem-mixins';
 
 .body {
   @include modifier('horizontal') {

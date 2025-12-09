@@ -1,16 +1,17 @@
 import React, { useState } from 'react'
-import Form from 's/components/Form/Form'
-import Field from 's/components/Field/Field'
+import Form from '@src/components/Form/Form'
+import Field from '@src/components/Field/Field'
 import URL from 'url-parse'
-import postData from 's/helper/postData'
-import { Post } from '../../../../../shared/types'
+import postData from '@src/services/postData'
+import { ParsedPostWithUrl } from '@shared/post'
+import { fetchSSPost } from '@src/services/ssService'
 
-interface PostFormProps {
-  handlePostResponse: (postJson: Post | null) => void
-  skin?: any
+export interface PostFormProps {
+  addErrorMessage: (message: string) => void
+  appendPost: (post: ParsedPostWithUrl) => void
 }
 
-const PostForm = ({ handlePostResponse }: PostFormProps) => {
+const PostForm = ({ addErrorMessage, appendPost }: PostFormProps) => {
   const url = new URL(window.location.href, true)
   const [formData, setFormData] = useState({
     url: url.query.post || '',
@@ -25,11 +26,13 @@ const PostForm = ({ handlePostResponse }: PostFormProps) => {
 
   const formOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     const target = event.target as HTMLFormElement
-    postData(target.action, formData)
-      .then(postJson => handlePostResponse(postJson))
-      .catch(error => {
-        console.log(error)
-        handlePostResponse(null)
+
+    fetchSSPost(target.action, formData.url)
+      .then(post => {
+        appendPost(post)
+      })
+      .catch((error: unknown) => {
+        addErrorMessage(typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string' ? error.message : 'Unknown error')
       })
 
     event.preventDefault()

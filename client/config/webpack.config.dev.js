@@ -93,7 +93,7 @@ module.exports = {
     ],
     alias: {
       // Resolve source for absolute paths
-      s: path.resolve('src'),
+      '@src': path.resolve('src'),
       '@shared': path.resolve(__dirname, '../../shared'),
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
@@ -134,7 +134,7 @@ module.exports = {
           // Process TS/TSX with ts-loader, then JS with Babel.
           {
             test: /\.(ts|tsx)$/,
-            include: paths.appSrc,
+            include: [paths.appSrc, path.resolve(__dirname, '../../shared')],
             use: [
               {
                 loader: require.resolve('babel-loader'),

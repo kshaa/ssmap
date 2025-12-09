@@ -1,4 +1,4 @@
-import { AddressInfo } from '@shared/types.js'
+import { AddressInfo } from '@shared/post.js'
 import { getPostInfoFields } from './getPostInfoFields'
 import { parseCoordinatesField } from './parseCoordinatesField'
 

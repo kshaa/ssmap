@@ -1,7 +1,15 @@
 import React from 'react'
-import { useBemClassName } from 's/hooks/useBemClassName'
+import { useBemClassName } from '@src/hooks/useBemClassName'
 import './PostList.scss'
-import { PostList as PostListType, PostWithUI } from '../../../../../shared/types'
+import { ParsedPostWithUrl } from '@shared/post'
+
+export interface PostWithUI extends ParsedPostWithUrl {
+  isOpen?: boolean
+}
+
+export interface PostListType {
+  [url: string]: PostWithUI
+}
 
 interface PostListProps {
   postList: PostListType

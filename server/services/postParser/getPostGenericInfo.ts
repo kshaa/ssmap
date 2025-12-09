@@ -1,4 +1,4 @@
-import { GenericInfo } from '@shared/types.js'
+import { GenericInfo } from '@shared/post.js'
 import { getPostInfoFields } from './getPostInfoFields'
 
 export const getPostGenericInfo = (document: Document): GenericInfo => {

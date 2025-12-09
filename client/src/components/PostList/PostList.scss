@@ -1,5 +1,5 @@
-@import '~s/styling/constants';
-@import '~s/styling/bem-mixins';
+@import '~@src/styling/constants';
+@import '~@src/styling/bem-mixins';
 
 .post-list {
   @include modifier('vertical') {

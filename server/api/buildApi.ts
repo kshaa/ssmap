@@ -3,18 +3,12 @@ import { Services } from '@src/services/bootstrap/initServices'
 import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
 import postRouter from './routes/post'
-import { BaseError } from '@src/services/errors/base'
-import { UnknownError } from '@src/services/errors/unknownError'
-import { NotFoundError } from '@src/services/errors/notFoundError'
+import { BaseError } from '@shared/errors/base'
+import { UnknownError } from '@shared/errors/unknownError'
+import { NotFoundError } from '@shared/errors/notFoundError'
 import { logger } from '@src/services/logging/logger'
-import { ParseError } from '@src/services/errors/parseError'
-
-export interface Context {
-  config: Config
-  services: Services
-}
-
-export type App = Koa<Koa.DefaultState, Context>
+import { ParseError } from '@shared/errors/parseError'
+import { App } from './utils'
 
 const attachEndpoints = (app: App) => {
   const routers = [postRouter]

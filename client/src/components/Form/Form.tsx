@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { useBemClassName } from 's/hooks/useBemClassName'
-import postData from 's/helper/postData'
+import { useBemClassName } from '@src/hooks/useBemClassName'
+import postData from '@src/services/postData'
 import './Form.scss'
 
 interface FormProps {

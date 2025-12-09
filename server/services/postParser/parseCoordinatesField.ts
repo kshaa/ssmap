@@ -1,4 +1,4 @@
-import { Coordinates } from '@shared/types.js'
+import { Coordinates } from '@shared/post.js'
 
 export const parseCoordinatesField = (coordinatesField: HTMLElement): Coordinates | null => {
   const coordinatesClickScript = coordinatesField.getAttribute('onclick')

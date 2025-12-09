@@ -16,21 +16,13 @@ export interface GenericInfo {
   [key: string]: string
 }
 
-export interface Post {
-  status: 'success' | 'fail'
-  addressInfo?: AddressInfo
-  genericInfo?: GenericInfo
+export interface ParsedPost {
+  addressInfo: AddressInfo
+  genericInfo: GenericInfo
   price?: string | null
   title?: string | null
-  url?: string
-  message?: string
-  stack?: string[]
 }
 
-export interface PostWithUI extends Post {
-  isOpen?: boolean
-}
-
-export interface PostList {
-  [url: string]: PostWithUI
+export interface ParsedPostWithUrl extends ParsedPost {
+  url: string
 }
