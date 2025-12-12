@@ -24,11 +24,11 @@ const PostList = ({ postList, focusPost, removePost, skin = {} }: PostListProps)
   const renderPost = (post: PostWithUI) => {
     return (
       <div className={getSkinnedBlockClass('post')} key={post.url} onClick={focusPost(post)}>
-        <div className={getSkinnedElementClass('post', 'title')}>{post.title}</div>
+        <div className={getSkinnedElementClass('post', 'title')}>{post.data.title}</div>
         <div className={getSkinnedElementClass('post', 'action-bar')}>
           <div className={getSkinnedElementClass('post', 'price')}>
             <strong>Cena: </strong>
-            <span>{post.price}</span>
+            <span>{post.data.price}</span>
           </div>
           <button className={getSkinnedElementClass('post', 'remove')} onClick={removePost(post)}>
             {'✖'}

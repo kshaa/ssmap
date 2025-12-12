@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import Form from '@src/components/Form/Form'
 import Field from '@src/components/Field/Field'
 import URL from 'url-parse'
-import postData from '@src/services/postData'
 import { ParsedPostWithUrl } from '@shared/post'
 import { fetchSSPost } from '@src/services/ssService'
 

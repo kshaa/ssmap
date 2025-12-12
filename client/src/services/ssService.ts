@@ -6,15 +6,17 @@ import { z } from 'zod'
 
 const postSchema = z.object({
   url: z.string(),
-  addressInfo: z.object({
-    coordinates: z.object({
-      lat: z.number(),
-      lng: z.number(),
+  data: z.object({
+    addressInfo: z.object({
+      coordinates: z.object({
+        lat: z.number(),
+        lng: z.number(),
+      }),
     }),
+    genericInfo: z.record(z.string(), z.string()),
+    price: z.string().nullable(),
+    title: z.string().nullable(),  
   }),
-  genericInfo: z.record(z.string(), z.string()),
-  price: z.string().nullable(),
-  title: z.string().nullable(),
 })
 
 export const fetchSSPost = async (requestUrl: string, postUrl: string): Promise<ParsedPostWithUrl> => {

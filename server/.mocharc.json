@@ -1,7 +1,8 @@
 {
   "extensions": ["ts"],
-  "spec": ["test/**/*.test.ts"],
-  "node-option": ["import=tsx/esm", "no-warnings"],
+  "spec": ["**/*.spec.ts"],
+  "ignore": ["node_modules/**", "dist/**"],
+  "node-option": ["import=tsx", "no-warnings"],
   "timeout": 5000,
   "async-only": false
 }

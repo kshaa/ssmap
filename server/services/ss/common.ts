@@ -1,0 +1,1 @@
+export const DEFAULT_TTL_SECONDS = 5 // 5 seconds is the default TTL for SS.LV feeds

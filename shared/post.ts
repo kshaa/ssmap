@@ -23,6 +23,7 @@ export interface ParsedPost {
   title?: string | null
 }
 
-export interface ParsedPostWithUrl extends ParsedPost {
+export interface ParsedPostWithUrl {
   url: string
+  data: ParsedPost
 }
