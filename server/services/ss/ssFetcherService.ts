@@ -62,7 +62,7 @@ const fetchParsedFeed = async (rawUrl: string): Promise<ParsedFeedWithUrl> => {
   return { url, data }
 }
 
-export const buildSsFetcherService = () => {
+export const buildSsFetcherService = (): SSFetcherService => {
   return {
     fetchParsedPost,
     fetchParsedFeed,

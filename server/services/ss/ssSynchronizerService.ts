@@ -66,7 +66,7 @@ const syncPost = async (state: State, rawPostUrl: string): Promise<ParsedPostWit
   })
 }
 
-const syncFeed = async (state: State, rawFeedUrl: string): Promise<ParsedFeedWithUrl & CrudMetadata> => {
+const syncFeed = async (state: State, rawFeedUrl: string): Promise<ParsedFeedWithUrl & CrudMetadata & WithStaleness> => {
   return await state.queue.add(async () => {
     // Normalize the URL
     const feedUrl = getUniqueUrl(rawFeedUrl)
@@ -91,7 +91,7 @@ const syncFeedAndPosts = async (state: State, rawFeedUrl: string): Promise<{ fee
   })
 }
 
-export const buildSsSynchronizerService = (database: DatabaseService, fetcher: SSFetcherService) => {
+export const buildSsSynchronizerService = (database: DatabaseService, fetcher: SSFetcherService): SSSynchronizerService => {
   const state = initState(database, fetcher)
   return {
     syncPost: syncPost.bind(null, state),

@@ -6,7 +6,7 @@ const post = createRouter()
 
 post.post('/post', async (ctx) => {
   const body = await z.object({ url: z.string() }).parseAsync(ctx.request.body).catch((e) => { throw new ParseError({ entity: 'body', isUserError: true }, e) })
-  const post = await ctx.services.ss.fetchParsedPost(body.url)
+  const post = await ctx.services.ssFetcher.fetchParsedPost(body.url)
 
   ctx.status = 200
   ctx.body = post 

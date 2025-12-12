@@ -38,6 +38,7 @@ export const parseAppError = (error: unknown): BaseError | null => {
   if (error instanceof BaseError) return error
   if (
     // Is an object
+    error &&
     typeof error === 'object' && 
 
     // Has a string message
@@ -55,6 +56,7 @@ export const parseAppError = (error: unknown): BaseError | null => {
 
     // Has an info object
     'info' in error &&
+    error.info &&
     typeof error.info === 'object'
   ) return new BaseError(error.message, error.name as ErrorNames, error.code as number, 'cause' in error ? error.cause : undefined, error.info)
   return null

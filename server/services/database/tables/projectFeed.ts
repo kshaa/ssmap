@@ -7,7 +7,7 @@ export interface ProjectFeedTable {
   get: (projectId: string, feedUrl: string) => Promise<(ProjectFeed & CrudMetadata) | null>
 }
 
-const upsert = async (underlying: UnderlyingDatabase, projectId: string, feedUrl: string, data: Omit<ProjectFeed, 'projectId' | 'feedUrl'>) => {
+const upsert = async (underlying: UnderlyingDatabase, projectId: string, feedUrl: string) => {
   const result =  await underlying.db.get(`
     INSERT INTO project_feed (
       project_id, 

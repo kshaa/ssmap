@@ -1,6 +1,6 @@
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
-import { buildSsSynchronizerService, Staleness } from './ssSynchronizerService'
+import { buildSsSynchronizerService, SSSynchronizerService, Staleness } from './ssSynchronizerService'
 import { buildSsFetcherService } from './ssFetcherService'
 import nock from 'nock'
 import { buildTestDatabase } from '../database/database.spec'
@@ -8,7 +8,7 @@ import { loadDocumentWithUrlFixture } from '../testing/utils/loadDocumentWithUrl
 import sinon from 'sinon'
 
 describe('SSSynchronizerService', () => {
-  let synchronizer
+  let synchronizer: SSSynchronizerService
 
   before(async () => {
     const database = await buildTestDatabase()
@@ -118,7 +118,7 @@ describe('SSSynchronizerService', () => {
         ...result.feed,
         staleness: Staleness.Cached,
       },
-      posts: result.posts.map(post => ({
+      posts: result.posts.map((post: object) => ({
         ...post,
         staleness: Staleness.Cached,
       })),
