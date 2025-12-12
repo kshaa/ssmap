@@ -8,26 +8,29 @@ const postSchema = z.object({
   url: z.string(),
   data: z.object({
     addressInfo: z.object({
+      street: z.string().nullable().optional(),
+      city: z.string().nullable().optional(),
+      state: z.string().nullable().optional(),
       coordinates: z.object({
         lat: z.number(),
         lng: z.number(),
-      }),
+      }).nullable().optional(),
     }),
     genericInfo: z.record(z.string(), z.string()),
-    price: z.string().nullable(),
-    title: z.string().nullable(),  
+    price: z.string().nullable().optional(),
+    title: z.string().nullable().optional(),  
   }),
 })
 
-export const fetchSSPost = async (requestUrl: string, postUrl: string): Promise<ParsedPostWithUrl> => {
+export const fetchSSPosts = async (requestUrl: string, ssUrl: string): Promise<ParsedPostWithUrl[]> => {
   const response = await fetch(requestUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ url: postUrl }),
+    body: JSON.stringify({ url: ssUrl }),
   }).catch(err => {
-    throw new UnknownError('Failed to fetch post', err)
+    throw new UnknownError('Failed to fetch posts', err)
   })
 
   const json = await response.json().catch(err => {
@@ -37,9 +40,9 @@ export const fetchSSPost = async (requestUrl: string, postUrl: string): Promise<
   const parsedError = parseAppError(json)
   if (parsedError) throw parsedError
 
-  const parsedPost: ParsedPostWithUrl = await postSchema.parseAsync(json).catch(err => {
+  const parsedPosts: ParsedPostWithUrl[] = await postSchema.array().parseAsync(json).catch(err => {
     throw new ParseError({ entity: 'responseJson', isUserError: false }, err)
   })
 
-  return parsedPost
+  return parsedPosts
 }

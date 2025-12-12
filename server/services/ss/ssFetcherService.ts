@@ -5,6 +5,7 @@ import { UnknownError } from "@shared/errors/unknownError"
 import { parsePostDocument } from "../postParser/parsePostDocument"
 import { ParsedFeedWithUrl } from "@shared/feed"
 import { parseFeedDocument } from "../feedParser/parseFeedDocument"
+import { logger } from "../logging/logger"
 
 export interface SSFetcherService {
   fetchParsedPost: (url: string) => Promise<ParsedPostWithUrl>
@@ -28,6 +29,7 @@ export const getUniqueUrl = (url: string): { urlText: string, url: URL } => {
 const fetchParsedPost = async (rawUrl: string): Promise<ParsedPostWithUrl> => {
   const url = getUniqueUrl(rawUrl).urlText
 
+  logger.info(`Fetching post ${url}`)
   const response = await fetch(url).catch((err: unknown) => {
     throw new UnknownError('Failed to fetch post', err, { url })
   })

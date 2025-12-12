@@ -3,9 +3,10 @@ import { ParsedFeedWithUrl } from "@shared/feed"
 import { getUniqueUrl, SSFetcherService } from "./ssFetcherService"
 import { DatabaseService } from "../database/initDatabase"
 import PQueue from "p-queue"
-import { DEFAULT_TTL_SECONDS } from "./common"
+import { MIN_POST_TTL_SECONDS } from "./common"
 import { CrudMetadata } from "@shared/crudMetadata"
 import { PostSync, FeedSync, FeedAndPostsSync, ThingSync, WithStaleness, ThingKind, Staleness } from "@shared/synchronizedThing"
+import { logger } from "../logging/logger"
 export interface SSSynchronizerService {
   syncPost: (postUrl: string) => Promise<PostSync>
   syncFeed: (feedUrl: string) => Promise<FeedSync>
@@ -42,12 +43,13 @@ const isStale = (timestampMs: number, ttlSeconds: number): boolean => {
 
 const syncPost = async (state: State, rawPostUrl: string): Promise<ParsedPostWithUrl & CrudMetadata & WithStaleness> => {
   return await state.queue.add(async () => {
+    logger.debug(`Syncing post ${rawPostUrl}`)
     // Normalize the URL
     const postUrl = getUniqueUrl(rawPostUrl).urlText
     // Fetch, maybe we have that post in the database already
     const existingPost = await state.database.tables.post.get(postUrl)
     // If we do and it's not stale, return it
-    if (existingPost && !isStale(existingPost.updatedAt, DEFAULT_TTL_SECONDS)) return { ...existingPost, staleness: Staleness.Cached }
+    if (existingPost && !isStale(existingPost.updatedAt, MIN_POST_TTL_SECONDS)) return { ...existingPost, staleness: Staleness.Cached }
     // If it does not exist or is stale, fetch it
     const post = await state.fetcher.fetchParsedPost(postUrl)
     // Upsert the post into the database
@@ -59,6 +61,7 @@ const syncPost = async (state: State, rawPostUrl: string): Promise<ParsedPostWit
 
 const syncFeed = async (state: State, rawFeedUrl: string): Promise<ParsedFeedWithUrl & CrudMetadata & WithStaleness> => {
   return await state.queue.add(async () => {
+    logger.debug(`Syncing feed ${rawFeedUrl}`)
     // Normalize the URL
     const feedUrl = getUniqueUrl(rawFeedUrl).urlText
     // Fetch, maybe we have that feed in the database already
@@ -76,6 +79,7 @@ const syncFeed = async (state: State, rawFeedUrl: string): Promise<ParsedFeedWit
 
 const syncFeedAndPosts = async (state: State, rawFeedUrl: string): Promise<{ feed: ParsedFeedWithUrl & CrudMetadata, posts: (ParsedPostWithUrl & CrudMetadata)[] }> => {
   return await state.queue.add(async () => {
+    logger.debug(`Syncing feed and posts ${rawFeedUrl}`)
     const feed = await syncFeed(state, rawFeedUrl)
     const posts = await Promise.all(feed.data.posts.map(post => syncPost(state, post.url)))
     return { feed, posts }
@@ -104,6 +108,7 @@ const urlInspect = (rawUrl: string, isDeepSearch: boolean): { kind: ThingKind, u
 
 const syncSsUrl = async (state: State, url: string, isDeepSearch: boolean): Promise<ThingSync> => {
   const { kind, url: urlText } = urlInspect(url, isDeepSearch)
+  logger.info(`Syncing url ${url} as ${kind}`)
   switch (kind) {
     case ThingKind.Post:
       return { kind: ThingKind.Post, data: await syncPost(state, urlText) }

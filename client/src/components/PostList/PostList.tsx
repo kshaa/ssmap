@@ -22,13 +22,19 @@ const PostList = ({ postList, focusPost, removePost, skin = {} }: PostListProps)
   const { getSkinnedBlockClass, getSkinnedElementClass } = useBemClassName(skin)
 
   const renderPost = (post: PostWithUI) => {
+    const isFaulty = !post.data.addressInfo?.coordinates || !post.data.addressInfo?.coordinates.lat || !post.data.addressInfo?.coordinates.lng
+
     return (
-      <div className={getSkinnedBlockClass('post')} key={post.url} onClick={focusPost(post)}>
+      <div className={getSkinnedBlockClass('post', undefined, { ['faulty']: isFaulty })} key={post.url} onClick={focusPost(post)}>
         <div className={getSkinnedElementClass('post', 'title')}>{post.data.title}</div>
         <div className={getSkinnedElementClass('post', 'action-bar')}>
           <div className={getSkinnedElementClass('post', 'price')}>
             <strong>Cena: </strong>
             <span>{post.data.price}</span>
+          </div>
+          <div className={getSkinnedElementClass('post', 'price')}>
+            <strong>Saite: </strong>
+            <a href={post.url} target="_blank" rel="noopener noreferrer">Apskatīt</a>
           </div>
           <button className={getSkinnedElementClass('post', 'remove')} onClick={removePost(post)}>
             {'✖'}

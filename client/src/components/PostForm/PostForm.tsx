@@ -3,14 +3,14 @@ import Form from '@src/components/Form/Form'
 import Field from '@src/components/Field/Field'
 import URL from 'url-parse'
 import { ParsedPostWithUrl } from '@shared/post'
-import { fetchSSPost } from '@src/services/ssService'
+import { fetchSSPosts } from '@src/services/ssService'
 
 export interface PostFormProps {
   addErrorMessage: (message: string) => void
-  appendPost: (post: ParsedPostWithUrl) => void
+  appendPosts: (post: ParsedPostWithUrl[]) => void
 }
 
-const PostForm = ({ addErrorMessage, appendPost }: PostFormProps) => {
+const PostForm = ({ addErrorMessage, appendPosts }: PostFormProps) => {
   const url = new URL(window.location.href, true)
   const [formData, setFormData] = useState({
     url: url.query.post || '',
@@ -26,11 +26,12 @@ const PostForm = ({ addErrorMessage, appendPost }: PostFormProps) => {
   const formOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     const target = event.target as HTMLFormElement
 
-    fetchSSPost(target.action, formData.url)
+    fetchSSPosts(target.action, formData.url)
       .then(post => {
-        appendPost(post)
+        appendPosts(post)
       })
       .catch((error: unknown) => {
+        console.error(error)
         addErrorMessage(typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string' ? error.message : 'Unknown error')
       })
 
@@ -39,7 +40,7 @@ const PostForm = ({ addErrorMessage, appendPost }: PostFormProps) => {
 
   return (
     <Form
-      formAction="/api/post"
+      formAction="/api/syncUrl"
       formMethod="post"
       formOnSubmit={formOnSubmit}
       skin={{
@@ -49,7 +50,7 @@ const PostForm = ({ addErrorMessage, appendPost }: PostFormProps) => {
       }}
     >
       <Field
-        fieldLabel="SS.com sludinājuma saite"
+        fieldLabel="SS.lv sludinājuma saite"
         fieldType="text"
         fieldName="url"
         fieldValue={formData.url}

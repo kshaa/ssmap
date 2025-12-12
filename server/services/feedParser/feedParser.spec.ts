@@ -3,6 +3,7 @@ import { expect } from 'chai'
 import { loadDocumentWithUrlFixture } from '../testing/utils/loadDocumentWithUrl'
 import { getPosts, getTitle, getTtlSeconds, parseFeedDocument } from './parseFeedDocument'
 import { JSDOM } from 'jsdom'
+import { MIN_FEED_TTL_SECONDS } from '../ss/common'
 
 describe('PostParser', () => {
   let text: string
@@ -24,7 +25,7 @@ describe('PostParser', () => {
 
   describe('getFeedTtlSeconds', () => {
     it('should extract the post price from document', () => {
-      const ttlSeconds = getTtlSeconds(xml)
+      const ttlSeconds = getTtlSeconds(xml, MIN_FEED_TTL_SECONDS)
       expect(ttlSeconds).to.equal(5)
     })
   })

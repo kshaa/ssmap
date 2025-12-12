@@ -4,7 +4,8 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import './PostMap.scss'
-import { PostList as PostListType, PostWithUI, Coordinates } from '@shared/post'
+import { Coordinates } from '@shared/post'
+import { PostListType, PostWithUI } from '../PostList/PostList'
 
 // Fix for default marker icon in Leaflet with Webpack
 const markerIcon2x = require('leaflet/dist/images/marker-icon-2x.png').default
@@ -38,16 +39,16 @@ const PostMap = ({
 
   // Update map center when focusedPost changes
   useEffect(() => {
-    if (mapRef.current && focusedPost?.addressInfo?.coordinates) {
+    if (mapRef.current && focusedPost?.data.addressInfo?.coordinates) {
       mapRef.current.setView(
-        [focusedPost.addressInfo.coordinates.lat, focusedPost.addressInfo.coordinates.lng],
+        [focusedPost.data.addressInfo.coordinates.lat, focusedPost.data.addressInfo.coordinates.lng],
         defaultZoom
       )
     }
   }, [focusedPost, defaultZoom])
 
   const renderPostInfo = (post: PostWithUI) => {
-    const postInfos = Object.entries(post.genericInfo ? post.genericInfo : {}).map(
+    const postInfos = Object.entries(post.data.genericInfo ? post.data.genericInfo : {}).map(
       ([attribute, value]) => {
         return (
           <div key={attribute} className={getSkinnedElementClass('maps-info-box', 'entry')}>
@@ -64,10 +65,10 @@ const PostMap = ({
 
     return (
       <div className={getSkinnedBlockClass('maps-info-box')}>
-        <p className={getSkinnedElementClass('maps-info-box', 'title')}>{post.title}</p>
+        <p className={getSkinnedElementClass('maps-info-box', 'title')}>{post.data.title}</p>
         <div className={getSkinnedElementClass('maps-info-box', 'info-entries')}>{postInfos}</div>
         <div className={getSkinnedElementClass('maps-info-box', 'action-bar')}>
-          <strong className={getSkinnedElementClass('maps-info-box', 'price')}>{post.price}</strong>
+          <strong className={getSkinnedElementClass('maps-info-box', 'price')}>{post.data.price}</strong>
           <a
             href={post.url}
             target="_blank"
@@ -84,7 +85,7 @@ const PostMap = ({
   }
 
   const renderPostMarker = (post: PostWithUI) => {
-    const coordinates = post.addressInfo && post.addressInfo.coordinates
+    const coordinates = post.data.addressInfo && post.data.addressInfo.coordinates
     if (!coordinates || !post.url) {
       return null
     }
@@ -103,8 +104,8 @@ const PostMap = ({
   }
 
   const mapCenter =
-    focusedPost && focusedPost.addressInfo && focusedPost.addressInfo.coordinates
-      ? focusedPost.addressInfo.coordinates
+    focusedPost && focusedPost.data.addressInfo && focusedPost.data.addressInfo.coordinates
+      ? focusedPost.data.addressInfo.coordinates
       : defaultCenter
 
   return (

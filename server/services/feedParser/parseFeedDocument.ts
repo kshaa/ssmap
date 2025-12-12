@@ -1,8 +1,8 @@
 import { ParseError } from '@shared/errors/parseError'
 import { logger } from '../logging/logger'
-import { DEFAULT_TTL_SECONDS } from '../ss/common'
 import { ParsedFeed, PostReference } from '@shared/feed'
 import { JSDOM } from 'jsdom'
+import { MIN_FEED_TTL_SECONDS } from '../ss/common'
 
 export const getTitle = (feedxml: Document): string => {
   const title = feedxml.querySelector('channel > title')
@@ -12,7 +12,7 @@ export const getTitle = (feedxml: Document): string => {
   return titleText
 }
 
-export const getTtlSeconds = (feedxml: Document): number => {
+export const getTtlSeconds = (feedxml: Document, minTtlSeconds: number): number => {
   const ttl = feedxml.querySelector('channel > ttl')
   if (!ttl) throw new ParseError({ entity: 'feed', isUserError: false }, new Error('TTL not found in feed'))
   const ttlText = ttl.textContent
@@ -20,9 +20,9 @@ export const getTtlSeconds = (feedxml: Document): number => {
   let ttlInt = parseInt(ttlText)
   if (isNaN(ttlInt)) throw new ParseError({ entity: 'feed', isUserError: false }, new Error('TTL is not a number'))
   if (!isFinite(ttlInt)) throw new ParseError({ entity: 'feed', isUserError: false }, new Error('TTL is not a finite number'))
-  if (ttlInt < DEFAULT_TTL_SECONDS) {
-    logger.warn(`TTL of value ${ttlInt} found which is less than the default ${DEFAULT_TTL_SECONDS}, using default value instead`)
-    ttlInt = DEFAULT_TTL_SECONDS
+  if (ttlInt < minTtlSeconds) {
+    logger.warn(`TTL of value ${ttlInt} found which is less than the default ${minTtlSeconds}, using default value instead`)
+    ttlInt = minTtlSeconds
   }
   
   return ttlInt
@@ -46,7 +46,7 @@ export const parseFeedDocument = (document: string): ParsedFeed => {
   const dom = new JSDOM(document, { contentType: 'text/xml' })
   const feedxml = dom.window.document
   const title = getTitle(feedxml)
-  const ttlSeconds = getTtlSeconds(feedxml)
+  const ttlSeconds = getTtlSeconds(feedxml, MIN_FEED_TTL_SECONDS)
   const posts = getPosts(feedxml)
   return {
     title,

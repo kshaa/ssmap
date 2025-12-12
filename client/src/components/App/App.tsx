@@ -46,16 +46,18 @@ const App = () => {
     }, 4000)
   }
 
-  const appendPost = (post: ParsedPostWithUrl) => {
-    const fondledPost = {
-      ...post,
-      isOpen: true,
-    }
+  const appendPosts = (posts: ParsedPostWithUrl[]) => {
+    const fondledPosts: PostListType = Object.fromEntries(posts.map(post => [
+      [post.url], {
+        ...post,
+        isOpen: true,
+      },
+    ]))
     setPostList(prevList => ({
       ...prevList,
-      [post.url]: fondledPost,
+      ...fondledPosts,
     }))
-    setFocusedPost(fondledPost)
+    setFocusedPost(Object.values(fondledPosts)[0])
     setMapZoom(13)
   }
 
@@ -99,7 +101,7 @@ const App = () => {
           ))}
       </div>
       <Body className={getSkinnedBlockClass('body')}>
-        <PostForm addErrorMessage={addErrorMessage} appendPost={appendPost} />
+        <PostForm addErrorMessage={addErrorMessage} appendPosts={appendPosts} />
         <div className={getSkinnedBlockClass('info-wrapper', { [landscapeClass]: true })}>
           <PostList
             postList={postList}

@@ -6,10 +6,10 @@ export interface Coordinates {
 }
 
 export interface AddressInfo {
-  city?: string
-  state?: string
-  street?: string
-  coordinates?: Coordinates
+  city?: string | null
+  state?: string | null
+  street?: string | null
+  coordinates?: Coordinates | null
 }
 
 export interface GenericInfo {
