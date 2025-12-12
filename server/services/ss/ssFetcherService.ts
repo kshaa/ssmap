@@ -13,7 +13,7 @@ export interface SSFetcherService {
 
 const isHostnameSS = (hostname: string): boolean => Boolean(hostname.match(/^(www\.)?ss\.lv$/))
 
-export const getUniqueUrl = (url: string): string => {
+export const getUniqueUrl = (url: string): { urlText: string, url: URL } => {
   let parsedUrl: URL
   try {
     parsedUrl = new URL(url)
@@ -21,13 +21,12 @@ export const getUniqueUrl = (url: string): string => {
   } catch (err) {
     throw new ParseError({ entity: 'url', isUserError: true }, err)
   }
-  // URL without fragment and query parameters
   let uniqueUrl = parsedUrl.origin + parsedUrl.pathname
-  return uniqueUrl
+  return { urlText: uniqueUrl, url: parsedUrl }
 }
 
 const fetchParsedPost = async (rawUrl: string): Promise<ParsedPostWithUrl> => {
-  const url = getUniqueUrl(rawUrl)
+  const url = getUniqueUrl(rawUrl).urlText
 
   const response = await fetch(url).catch((err: unknown) => {
     throw new UnknownError('Failed to fetch post', err, { url })
@@ -45,7 +44,7 @@ const fetchParsedPost = async (rawUrl: string): Promise<ParsedPostWithUrl> => {
 }
 
 const fetchParsedFeed = async (rawUrl: string): Promise<ParsedFeedWithUrl> => {
-  const url = getUniqueUrl(rawUrl)
+  const url = getUniqueUrl(rawUrl).urlText
 
   const response = await fetch(url).catch((err: unknown) => {
     throw new UnknownError('Failed to fetch feed', err, { url })

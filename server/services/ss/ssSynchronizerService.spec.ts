@@ -1,11 +1,12 @@
 import { describe, it } from 'mocha'
 import { expect } from 'chai'
-import { buildSsSynchronizerService, SSSynchronizerService, Staleness } from './ssSynchronizerService'
+import { buildSsSynchronizerService, SSSynchronizerService } from './ssSynchronizerService'
 import { buildSsFetcherService } from './ssFetcherService'
 import nock from 'nock'
 import { buildTestDatabase } from '../database/database.spec'
 import { loadDocumentWithUrlFixture } from '../testing/utils/loadDocumentWithUrl'
 import sinon from 'sinon'
+import { Staleness, ThingKind } from '@shared/synchronizedThing'
 
 describe('SSSynchronizerService', () => {
   let synchronizer: SSSynchronizerService
@@ -122,6 +123,35 @@ describe('SSSynchronizerService', () => {
         ...post,
         staleness: Staleness.Cached,
       })),
+    })
+
+    // Sync a post URL
+    nock('https://www.ss.lv')
+      .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html')
+      .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
+    const result3 = await synchronizer.syncSsUrl('https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html', false)
+    expect(result3).to.deep.equal({
+      kind: ThingKind.Post,
+      data: {
+        ...result.posts[0],
+        staleness: Staleness.Cached,
+      },
+    })
+
+    // Sync a feed URL
+    nock('https://www.ss.lv')
+      .get('/rss/real-estate/homes-summer-residences/riga/centre.xml')
+      .reply(200, (await loadDocumentWithUrlFixture('feedSmall.xml')).text)
+    nock('https://www.ss.lv')
+      .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html')
+      .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
+    nock('https://www.ss.lv')
+      .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html')
+      .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
+    const result4 = await synchronizer.syncSsUrl('https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml', true)
+    expect(result4).to.deep.equal({
+      kind: ThingKind.FeedAndPosts,
+      data: { feed: { ...result.feed, staleness: Staleness.Cached }, posts: result.posts.map((post: object) => ({ ...post, staleness: Staleness.Cached })) },
     })
   })
 })

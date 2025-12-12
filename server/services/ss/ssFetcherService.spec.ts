@@ -17,11 +17,11 @@ describe('SSFetcherService', () => {
     nock.enableNetConnect()
   })
   it('should get the unique url', () => {
-    const uniqueUrl = getUniqueUrl('https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html#identifier?test=123')
+    const uniqueUrl = getUniqueUrl('https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html#identifier?test=123').urlText
     expect(uniqueUrl).to.equal('https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html')
   })
   it('should throw an error if the url is not a valid ss.lv url', () => {
-    expect(() => getUniqueUrl('https://www.google.com')).to.throw()
+    expect(() => getUniqueUrl('https://www.google.com').urlText).to.throw()
   })
   it('should be able to fetch a valid post from ss.lv', async () => {
     // Use nock to mock the fetch request
