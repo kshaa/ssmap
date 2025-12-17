@@ -6,6 +6,7 @@ interface NotFoundInfo {
   id: string
   secondaryEntity?: string
   secondaryId?: string
+  hint?: string
 }
 
 export class NotFoundError extends BaseError {

@@ -39,7 +39,7 @@ const PostMap = ({
 
   // Update map center when focusedPost changes
   useEffect(() => {
-    if (mapRef.current && focusedPost?.data.addressInfo?.coordinates) {
+    if (mapRef.current && focusedPost?.data.addressInfo?.coordinates?.lat && focusedPost?.data.addressInfo?.coordinates?.lng) {
       mapRef.current.setView(
         [focusedPost.data.addressInfo.coordinates.lat, focusedPost.data.addressInfo.coordinates.lng],
         defaultZoom
@@ -86,7 +86,7 @@ const PostMap = ({
 
   const renderPostMarker = (post: PostWithUI) => {
     const coordinates = post.data.addressInfo && post.data.addressInfo.coordinates
-    if (!coordinates || !post.url) {
+    if (!coordinates || !post.url || !coordinates.lat || !coordinates.lng) {
       return null
     }
 
@@ -104,8 +104,8 @@ const PostMap = ({
   }
 
   const mapCenter =
-    focusedPost && focusedPost.data.addressInfo && focusedPost.data.addressInfo.coordinates
-      ? focusedPost.data.addressInfo.coordinates
+    focusedPost && focusedPost.data.addressInfo && focusedPost.data.addressInfo.coordinates && focusedPost.data.addressInfo.coordinates.lat && focusedPost.data.addressInfo.coordinates.lng
+      ? { lat: focusedPost.data.addressInfo.coordinates.lat, lng: focusedPost.data.addressInfo.coordinates.lng }
       : defaultCenter
 
   return (

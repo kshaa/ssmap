@@ -5,7 +5,7 @@ import { getPosts, getTitle, getTtlSeconds, parseFeedDocument } from './parseFee
 import { JSDOM } from 'jsdom'
 import { MIN_FEED_TTL_SECONDS } from '../ss/common'
 
-describe('PostParser', () => {
+describe('FeedParser', () => {
   let text: string
   let xml: Document
 

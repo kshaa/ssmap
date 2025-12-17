@@ -3,7 +3,6 @@ export const getPostPrice = (document: Document): string | null => {
   const priceNode = document.querySelector(priceSelector)
 
   if (!priceNode) {
-    console.log("Couldn't find post price element")
     return null
   }
 

@@ -54,6 +54,9 @@ module.exports = function (proxy, allowedHost) {
         context: ['/api'],
         target: 'http://localhost:3001',
         changeOrigin: true,
+        // Increase timeout to 10 minutes for long-running operations like listing page sync
+        timeout: 600000, // 10 minutes in milliseconds
+        proxyTimeout: 600000, // 10 minutes in milliseconds
       },
     ],
 

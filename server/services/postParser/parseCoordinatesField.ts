@@ -16,7 +16,6 @@ export const parseCoordinatesField = (coordinatesField: HTMLElement): Coordinate
   }
 
   if (!coordinates) {
-    console.log('Failed parsing coordinates field onclick attribute.')
     return null
   }
 

@@ -3,12 +3,13 @@ export interface PostReference {
 }
 
 export interface ParsedFeed {
-  title: string
-  ttlSeconds: number
+  title?: string
+  ttlSeconds?: number
   posts: PostReference[]
 }
 
 export interface ParsedFeedWithUrl {
   url: string
+  isListingPage: boolean
   data: ParsedFeed
 }

@@ -5,11 +5,15 @@ export interface Coordinates {
   lng: number
 }
 
+type NullableFields<T> = {
+  [K in keyof T]: T[K] | null
+}
+
 export interface AddressInfo {
   city?: string | null
   state?: string | null
   street?: string | null
-  coordinates?: Coordinates | null
+  coordinates?: Partial<NullableFields<Coordinates>> | null
 }
 
 export interface GenericInfo {

@@ -3,14 +3,15 @@ import { ParsedFeedWithUrl } from "@shared/feed"
 import { getUniqueUrl, SSFetcherService } from "./ssFetcherService"
 import { DatabaseService } from "../database/initDatabase"
 import PQueue from "p-queue"
-import { MIN_POST_TTL_SECONDS } from "./common"
+import { MIN_FEED_TTL_SECONDS, MIN_POST_TTL_SECONDS } from "./common"
 import { CrudMetadata } from "@shared/crudMetadata"
 import { PostSync, FeedSync, FeedAndPostsSync, ThingSync, WithStaleness, ThingKind, Staleness } from "@shared/synchronizedThing"
 import { logger } from "../logging/logger"
+import { urlInspect } from "./urlInspect"
 export interface SSSynchronizerService {
   syncPost: (postUrl: string) => Promise<PostSync>
-  syncFeed: (feedUrl: string) => Promise<FeedSync>
-  syncFeedAndPosts: (feedUrl: string) => Promise<FeedAndPostsSync>
+  syncFeed: (feedUrl: string, isListingPage: boolean) => Promise<FeedSync>
+  syncFeedAndPosts: (feedUrl: string, isListingPage: boolean) => Promise<FeedAndPostsSync>
   syncSsUrl: (url: string, isDeepSearch: boolean) => Promise<ThingSync>
 }
 
@@ -25,7 +26,7 @@ const initState = (database: DatabaseService, fetcher: SSFetcherService): State 
   // To be fair, we could do a lot more limiting, but I doubt anyone besides me would use this code :sweat_smile:
   // If you're reading this and you're not me, please feel free to improve the concurrency control.
   // E.g. we could limit the number of requests per minute, or per IP address, or per user agent, etc.
-  const queue = new PQueue({ concurrency: 3 })
+  const queue = new PQueue({ concurrency: 1 })
 
   return {
     database,
@@ -59,51 +60,32 @@ const syncPost = async (state: State, rawPostUrl: string): Promise<ParsedPostWit
   })
 }
 
-const syncFeed = async (state: State, rawFeedUrl: string): Promise<ParsedFeedWithUrl & CrudMetadata & WithStaleness> => {
+const syncFeed = async (state: State, rawFeedUrl: string, isListingPage: boolean): Promise<ParsedFeedWithUrl & CrudMetadata & WithStaleness> => {
   return await state.queue.add(async () => {
-    logger.debug(`Syncing feed ${rawFeedUrl}`)
+    logger.info(`Syncing feed ${rawFeedUrl}`)
     // Normalize the URL
     const feedUrl = getUniqueUrl(rawFeedUrl).urlText
     // Fetch, maybe we have that feed in the database already
     const existingFeed = await state.database.tables.feed.get(feedUrl)
     // If we do and it's not stale, return it
-    if (existingFeed && !isStale(existingFeed.updatedAt, existingFeed.data.ttlSeconds)) return { ...existingFeed, staleness: Staleness.Cached }
+    if (existingFeed && !isStale(existingFeed.updatedAt, existingFeed.data.ttlSeconds ?? MIN_FEED_TTL_SECONDS)) return { ...existingFeed, staleness: Staleness.Cached }
     // If it does not exist or is stale, fetch it
-    const feed = await state.fetcher.fetchParsedFeed(feedUrl)
+    const feed = isListingPage ? await state.fetcher.fetchParsedListingPage(feedUrl) : await state.fetcher.fetchParsedFeed(feedUrl)
     // Upsert the feed into the database
-    const persistedFeed = await state.database.tables.feed.upsert(feedUrl, feed.data)
+    const persistedFeed = await state.database.tables.feed.upsert(feedUrl, feed.data, isListingPage)
     // Return the persisted feed with timestamps
     return { ...persistedFeed, staleness: existingFeed ? Staleness.Refreshed : Staleness.FreshlyFetched }
   })
 }
 
-const syncFeedAndPosts = async (state: State, rawFeedUrl: string): Promise<{ feed: ParsedFeedWithUrl & CrudMetadata, posts: (ParsedPostWithUrl & CrudMetadata)[] }> => {
-  return await state.queue.add(async () => {
-    logger.debug(`Syncing feed and posts ${rawFeedUrl}`)
-    const feed = await syncFeed(state, rawFeedUrl)
-    const posts = await Promise.all(feed.data.posts.map(post => syncPost(state, post.url)))
-    return { feed, posts }
-  })
-}
+const syncFeedAndPosts = async (state: State, rawFeedUrl: string, isListingPage: boolean): Promise<{ feed: ParsedFeedWithUrl & CrudMetadata, posts: (ParsedPostWithUrl & CrudMetadata)[] }> => {
+  logger.info(`Syncing feed and posts ${rawFeedUrl}`)
+  const feed = await syncFeed(state, rawFeedUrl, isListingPage)
 
-const urlInspect = (rawUrl: string, isDeepSearch: boolean): { kind: ThingKind, url: string } => {
-  // Parse whether a URL is syntactically valid and from SS.lv
-  const { urlText, url } = getUniqueUrl(rawUrl)
+  logger.info(`Syncing feeds posts from ${rawFeedUrl} (${feed.data.posts.length} posts)`)
+  const posts = await Promise.all(feed.data.posts.map(post => syncPost(state, post.url)))
 
-  if (url.pathname.includes('/rss/')) {
-    // Seems like an RSS feed, let's either sync the feed itself or it and its posts
-    return { kind: isDeepSearch ? ThingKind.FeedAndPosts : ThingKind.Feed, url: urlText }
-  } else if (url.pathname.endsWith('.html')) {
-    // Seems like a post, let's sync it
-    return { kind: ThingKind.Post, url: urlText }
-  } else {
-    // Seems like something else, let's assume it's a listing page
-    // If this assumption is wrong, we'll just fail later and it's fine
-    // But if it's a listing page, we can append /rss/ to it and try parsing it as a feed
-    // Remove trailing slash if present to avoid double slashes
-    const baseUrl = urlText.endsWith('/') ? urlText.slice(0, -1) : urlText
-    return { kind: isDeepSearch ? ThingKind.FeedAndPosts : ThingKind.Feed, url: baseUrl + '/rss/' }
-  }
+  return { feed, posts }
 }
 
 const syncSsUrl = async (state: State, url: string, isDeepSearch: boolean): Promise<ThingSync> => {
@@ -113,9 +95,13 @@ const syncSsUrl = async (state: State, url: string, isDeepSearch: boolean): Prom
     case ThingKind.Post:
       return { kind: ThingKind.Post, data: await syncPost(state, urlText) }
     case ThingKind.Feed:
-      return { kind: ThingKind.Feed, data: await syncFeed(state, urlText) }
+      return { kind: ThingKind.Feed, data: await syncFeed(state, urlText, false) }
     case ThingKind.FeedAndPosts:
-      return { kind: ThingKind.FeedAndPosts, data: await syncFeedAndPosts(state, urlText) }
+      return { kind: ThingKind.FeedAndPosts, data: await syncFeedAndPosts(state, urlText, false) }
+    case ThingKind.ListingPage:
+      return { kind: ThingKind.ListingPage, data: await syncFeed(state, urlText, true) }
+    case ThingKind.ListingPageAndPosts:
+      return { kind: ThingKind.ListingPageAndPosts, data: await syncFeedAndPosts(state, urlText, true) }
   }
 }
 

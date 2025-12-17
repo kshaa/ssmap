@@ -12,8 +12,8 @@ const postSchema = z.object({
       city: z.string().nullable().optional(),
       state: z.string().nullable().optional(),
       coordinates: z.object({
-        lat: z.number(),
-        lng: z.number(),
+        lat: z.number().nullable().optional(),
+        lng: z.number().nullable().optional(),
       }).nullable().optional(),
     }),
     genericInfo: z.record(z.string(), z.string()),

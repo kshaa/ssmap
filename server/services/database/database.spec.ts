@@ -57,7 +57,7 @@ describe('Database', () => {
     await wait(50)
     const feedUrl = 'https://fake.internal/feed'
     const parsedFeed = { title: 'Feed', ttlSeconds: 10, posts: [] }
-    const persistedFeed = await database.tables.feed.upsert(feedUrl, parsedFeed)
+    const persistedFeed = await database.tables.feed.upsert(feedUrl, parsedFeed, false)
     const feedCreatedAt = persistedFeed.createdAt
     const feedUpdatedAt = persistedFeed.updatedAt
     expect(persistedFeed.url).to.equal(feedUrl)
@@ -70,7 +70,7 @@ describe('Database', () => {
     // Update feed
     await wait(50)
     const parsedFeed2 = { ...parsedFeed, title: 'potat'}
-    const persistedFeed2 = await database.tables.feed.upsert(feedUrl, parsedFeed2)
+    const persistedFeed2 = await database.tables.feed.upsert(feedUrl, parsedFeed2, false)
     expect(persistedFeed2.url).to.equal(feedUrl)
     expect(persistedFeed2.data).to.deep.equal(parsedFeed2)
     expect(persistedFeed2.createdAt).to.be.a('number')

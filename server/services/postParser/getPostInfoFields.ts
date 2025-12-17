@@ -29,7 +29,6 @@ export const getPostInfoFields = (document: Document): InfoFields => {
     }
 
     if (!infoFieldValueNode) {
-      console.log("Found address field, but our field value dom selector didn't match")
       continue
     }
 

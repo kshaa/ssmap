@@ -96,7 +96,12 @@ export const buildApp = (config: Config, services: Services): App => {
 export const initApp = (config: Config, app: App) => {
   // Go live!
   const port = config.api.port
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     logger.info(`Server is listening to requests`)
   })
+  
+  // Set timeout to 10 minutes for long-running operations (e.g., listing page sync)
+  server.timeout = 600000 // 10 minutes in milliseconds
+  server.keepAliveTimeout = 610000 // Slightly longer than timeout
+  server.headersTimeout = 620000 // Slightly longer than keepAliveTimeout
 }

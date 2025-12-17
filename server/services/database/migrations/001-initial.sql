@@ -36,6 +36,8 @@ CREATE TABLE feed (
   url TEXT PRIMARY KEY,
   -- JSON for structured data extracted from the URL
   data JSON NOT NULL,
+  -- Whether the feed is a listing page
+  is_listing_page BOOLEAN NOT NULL DEFAULT FALSE,
   -- Creation/update timestamps (Unix timestamps in milliseconds)
   created_at INTEGER NOT NULL DEFAULT (CAST(unixepoch('subsec') * 1000 AS INTEGER)),
   updated_at INTEGER NOT NULL DEFAULT (CAST(unixepoch('subsec') * 1000 AS INTEGER))

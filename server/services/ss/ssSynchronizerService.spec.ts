@@ -38,11 +38,11 @@ describe('SSSynchronizerService', () => {
       .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
 
     nock('https://www.ss.lv')
-      .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html')
+      .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnl.html')
       .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
 
     // Synchronize everything and verify output
-    const result = await synchronizer.syncFeedAndPosts('https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml')
+    const result = await synchronizer.syncFeedAndPosts('https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml', false)
     
     const postData = {
       "addressInfo": {
@@ -75,11 +75,12 @@ describe('SSSynchronizerService', () => {
         "data": {
           "posts": [
             { "url": "https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html" },
-            { "url": "https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html" },
+            { "url": "https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnl.html" },
           ],
           "title": "Sludinājumi - SS.LV - RSS. Nekustamie īpašumi : Mājas, vasarnīcas : Rīga : Centrs, Cenas",
           "ttlSeconds": 5,
         },
+        "isListingPage": false,
         "updatedAt": sinon.match.number,
         "url": "https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml",
         "staleness": Staleness.FreshlyFetched,
@@ -96,7 +97,7 @@ describe('SSSynchronizerService', () => {
           "createdAt": sinon.match.number,
           "data": postData,
           "updatedAt": sinon.match.number,
-          "url": "https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html",
+          "url": "https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnl.html",
           "staleness": Staleness.FreshlyFetched,
         }
       ]
@@ -110,9 +111,9 @@ describe('SSSynchronizerService', () => {
       .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html')
       .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
     nock('https://www.ss.lv')
-      .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html')
+      .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnl.html')
       .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
-    const result2 = await synchronizer.syncFeedAndPosts('https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml')
+    const result2 = await synchronizer.syncFeedAndPosts('https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml', false)
     expect(result2).to.deep.equal({
       ...result,
       feed: {

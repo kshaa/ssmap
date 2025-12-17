@@ -57,7 +57,8 @@ const App = () => {
       ...prevList,
       ...fondledPosts,
     }))
-    setFocusedPost(Object.values(fondledPosts)[0])
+    const firstValidCoordinatePost = Object.values(fondledPosts).find(post => post.data.addressInfo?.coordinates?.lat && post.data.addressInfo?.coordinates?.lng)
+    if (firstValidCoordinatePost) setFocusedPost(firstValidCoordinatePost)
     setMapZoom(13)
   }
 

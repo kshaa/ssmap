@@ -20,8 +20,10 @@ export enum ThingKind {
   Post = 'post',
   Feed = 'feed',
   FeedAndPosts = 'feedAndPosts',
+  ListingPage = 'listingPage',
+  ListingPageAndPosts = 'listingPageAndPosts',
 }
 export type PostThingSync = { kind: ThingKind.Post, data: PostSync }
-export type FeedThingSync = { kind: ThingKind.Feed, data: FeedSync }
-export type FeedAndPostThingSync = { kind: ThingKind.FeedAndPosts, data: FeedAndPostsSync }
+export type FeedThingSync = { kind: ThingKind.Feed | ThingKind.ListingPage, data: FeedSync }
+export type FeedAndPostThingSync = { kind: ThingKind.FeedAndPosts | ThingKind.ListingPageAndPosts, data: FeedAndPostsSync }
 export type ThingSync = PostThingSync | FeedThingSync | FeedAndPostThingSync

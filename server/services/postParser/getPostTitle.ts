@@ -4,7 +4,6 @@ export const getPostTitle = (document: Document): string | null => {
   const titleNode = document.querySelector(titleSelector)
 
   if (!titleNode) {
-    console.log("Couldn't find post title element")
     return null
   }
 
