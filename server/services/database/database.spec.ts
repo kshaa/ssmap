@@ -22,7 +22,7 @@ describe('Database', () => {
 
     // Create project
     const id = generateUuid()
-    const project = await database.tables.project.create({ id })
+    const project = await database.tables.project.upsert({ id, name: 'Test Project' })
     expect(project.id).to.equal(id)
     expect(project.createdAt).to.be.a('number')
     expect(project.updatedAt).to.be.a('number')

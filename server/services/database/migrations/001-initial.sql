@@ -5,6 +5,8 @@
 CREATE TABLE project (
   -- UUIDS primary key
   id UUID PRIMARY KEY,
+  -- Name of the project
+  name TEXT NOT NULL,
   -- Creation/update timestamps (Unix timestamps in milliseconds)
   created_at INTEGER NOT NULL DEFAULT (CAST(unixepoch('subsec') * 1000 AS INTEGER)),
   updated_at INTEGER NOT NULL DEFAULT (CAST(unixepoch('subsec') * 1000 AS INTEGER))

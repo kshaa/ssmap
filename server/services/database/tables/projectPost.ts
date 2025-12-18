@@ -5,6 +5,7 @@ import { UnderlyingDatabase } from '@src/services/database/initDatabase'
 export interface ProjectPostTable {
   upsert: (projectId: string, postUrl: string) => Promise<ProjectPost & CrudMetadata>
   get: (projectId: string, postUrl: string) => Promise<(ProjectPost & CrudMetadata) | null>
+  getAll: (projectId: string) => Promise<(ProjectPost & CrudMetadata)[]>
 }
 
 const upsert = async (underlying: UnderlyingDatabase, projectId: string, postUrl: string) => {
@@ -45,10 +46,21 @@ const get = async (underlying: UnderlyingDatabase, projectId: string, postUrl: s
   }
 }
 
+const getAll = async (underlying: UnderlyingDatabase, projectId: string): Promise<(ProjectPost & CrudMetadata)[]> => {
+  const result = await underlying.db.all<{ project_id: string; post_url: string; created_at: number; updated_at: number }[]>(`SELECT * FROM project_post WHERE project_id = ?`, [projectId])
+  return result.map(result => ({
+    projectId: result.project_id,
+    postUrl: result.post_url,
+    createdAt: result.created_at,
+    updatedAt: result.updated_at,
+  }))
+}
+
 export const createProjectPostTable = (underlying: UnderlyingDatabase): ProjectPostTable => {
   // Partially applied, curried functions
   return {
     upsert: upsert.bind(null, underlying),
     get: get.bind(null, underlying),
+    getAll: getAll.bind(null, underlying),
   }
 }

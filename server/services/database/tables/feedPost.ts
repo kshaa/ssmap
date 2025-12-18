@@ -5,6 +5,7 @@ import { UnderlyingDatabase } from '@src/services/database/initDatabase'
 export interface FeedPostTable {
   upsert: (feedUrl: string, postUrl: string) => Promise<FeedPost & CrudMetadata>
   get: (feedUrl: string, postUrl: string) => Promise<FeedPost & CrudMetadata | null>
+  getAll: (feedUrl: string) => Promise<(FeedPost & CrudMetadata)[]>
 }
 
 const upsert = async (underlying: UnderlyingDatabase, feedUrl: string, postUrl: string) => {
@@ -44,10 +45,21 @@ const get = async (underlying: UnderlyingDatabase, feedUrl: string, postUrl: str
   }
 }
 
+const getAll = async (underlying: UnderlyingDatabase, feedUrl: string): Promise<(FeedPost & CrudMetadata)[]> => {
+  const result = await underlying.db.all<{ feed_url: string; post_url: string; created_at: number; updated_at: number }[]>(`SELECT * FROM feed_post WHERE feed_url = ?`, [feedUrl])
+  return result.map(result => ({
+    feedUrl: result.feed_url,
+    postUrl: result.post_url,
+    createdAt: result.created_at,
+    updatedAt: result.updated_at,
+  }))
+}
+
 export const createFeedPostTable = (underlying: UnderlyingDatabase): FeedPostTable => {
   // Partially applied, curried functions
   return {
     upsert: upsert.bind(null, underlying),
     get: get.bind(null, underlying),
+    getAll: getAll.bind(null, underlying),
   }
 }
