@@ -21,7 +21,7 @@ const upsert = async (underlying: UnderlyingDatabase, url: string, post: ParsedP
     throw new Error('Failed to upsert post')
   }
   return {
-    url: result.url,
+    url: String(result.url),
     data: JSON.parse(result.data),
     createdAt: result.created_at,
     updatedAt: result.updated_at,
@@ -32,7 +32,7 @@ const get = async (underlying: UnderlyingDatabase, url: string) => {
   const result = await underlying.db.get<{ url: string; data: string; created_at: number; updated_at: number }>(`SELECT * FROM post WHERE url = ?`, [url])
   if (!result) return null
   return {
-    url: result.url,
+    url: String(result.url),
     data: JSON.parse(result.data),
     createdAt: result.created_at,
     updatedAt: result.updated_at,

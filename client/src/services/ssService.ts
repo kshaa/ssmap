@@ -2,25 +2,7 @@ import { ParsedPostWithUrl } from '@shared/post'
 import { UnknownError } from '@shared/errors/unknownError'
 import { ParseError } from '@shared/errors/parseError'
 import { parseAppError } from '@shared/errors/base'
-import { z } from 'zod'
-
-const postSchema = z.object({
-  url: z.string(),
-  data: z.object({
-    addressInfo: z.object({
-      street: z.string().nullable().optional(),
-      city: z.string().nullable().optional(),
-      state: z.string().nullable().optional(),
-      coordinates: z.object({
-        lat: z.number().nullable().optional(),
-        lng: z.number().nullable().optional(),
-      }).nullable().optional(),
-    }),
-    genericInfo: z.record(z.string(), z.string()),
-    price: z.string().nullable().optional(),
-    title: z.string().nullable().optional(),  
-  }),
-})
+import { parsedPostWithUrlSchema } from '@shared/post'
 
 export const fetchSSPosts = async (requestUrl: string, ssUrl: string): Promise<ParsedPostWithUrl[]> => {
   const response = await fetch(requestUrl, {
@@ -40,7 +22,7 @@ export const fetchSSPosts = async (requestUrl: string, ssUrl: string): Promise<P
   const parsedError = parseAppError(json)
   if (parsedError) throw parsedError
 
-  const parsedPosts: ParsedPostWithUrl[] = await postSchema.array().parseAsync(json).catch(err => {
+  const parsedPosts: ParsedPostWithUrl[] = await parsedPostWithUrlSchema.array().parseAsync(json).catch((err: unknown) => {
     throw new ParseError({ entity: 'responseJson', isUserError: false }, err)
   })
 

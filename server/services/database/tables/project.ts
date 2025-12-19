@@ -21,8 +21,8 @@ const upsert = async (underlying: UnderlyingDatabase, project: Project) => {
     throw new Error('Failed to upsert project')
   }
   return {
-    id: result.id,
-    name: result.name,
+    id: String(result.id),
+    name: String(result.name),
     createdAt: result.created_at,
     updatedAt: result.updated_at,
   }
@@ -32,8 +32,8 @@ const get = async (underlying: UnderlyingDatabase, id: string): Promise<Project 
   const result = await underlying.db.get(`SELECT * FROM project WHERE id = ?`, [id])
   if (!result) return null
   return {
-    id: result.id,
-    name: result.name,
+    id: String(result.id),
+    name: String(result.name),
     createdAt: result.created_at,
     updatedAt: result.updated_at,
   }

@@ -1,5 +1,11 @@
 {
   "name": "@ssmap/shared",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
 }

@@ -28,7 +28,7 @@ const upsert = async (underlying: UnderlyingDatabase, url: string, feed: ParsedF
     throw new Error('Failed to upsert feed')
   }
   return {
-    url: result.url,
+    url: String(result.url),
     data: JSON.parse(result.data),
     isListingPage: Boolean(result.is_listing_page),
     createdAt: result.created_at,
@@ -40,7 +40,7 @@ const get = async (underlying: UnderlyingDatabase, url: string): Promise<ParsedF
   const result = await underlying.db.get<{ url: string; data: string; is_listing_page: boolean; created_at: number; updated_at: number }>(`SELECT * FROM feed WHERE url = ?`, [url])
   if (!result) return null
   return {
-    url: result.url,
+    url: String(result.url),
     data: JSON.parse(result.data),
     isListingPage: Boolean(result.is_listing_page),
     createdAt: result.created_at,

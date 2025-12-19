@@ -28,8 +28,8 @@ const upsert = async (underlying: UnderlyingDatabase, projectId: string, postUrl
     throw new Error('Failed to upsert project post')
   }
   return {
-    projectId: result.project_id,
-    postUrl: result.post_url,
+    projectId: String(result.project_id),
+    postUrl: String(result.post_url),
     createdAt: result.created_at,
     updatedAt: result.updated_at,
   }
@@ -49,8 +49,8 @@ const get = async (underlying: UnderlyingDatabase, projectId: string, postUrl: s
 const getAll = async (underlying: UnderlyingDatabase, projectId: string): Promise<(ProjectPost & CrudMetadata)[]> => {
   const result = await underlying.db.all<{ project_id: string; post_url: string; created_at: number; updated_at: number }[]>(`SELECT * FROM project_post WHERE project_id = ?`, [projectId])
   return result.map(result => ({
-    projectId: result.project_id,
-    postUrl: result.post_url,
+    projectId: String(result.project_id),
+    postUrl: String(result.post_url),
     createdAt: result.created_at,
     updatedAt: result.updated_at,
   }))

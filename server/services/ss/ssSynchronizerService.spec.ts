@@ -1,5 +1,4 @@
 import { describe, it } from 'mocha'
-import { expect } from 'chai'
 import { buildSsSynchronizerService, SSSynchronizerService } from './ssSynchronizerService'
 import { buildSsFetcherService } from './ssFetcherService'
 import nock from 'nock'
@@ -69,7 +68,7 @@ describe('SSSynchronizerService', () => {
       "title": "Pārdod māju ar iekšējo apdari, tikai 4 km attālumā no Olaines. Līdz īpašumam ved asfaltēts ceļš. Dzelzsbetona pamati, gāzbetona sienas, betona plātņu pārsegumi. Kopējā platība 160 m², papildus plašas bēniņu telpas, kuras iespējams pielāgot dzīvošanai",
     }
     
-    sinon.assert.match(result, {
+    const expected = {
       "feed": {
         "createdAt": sinon.match.number,
         "data": {
@@ -100,8 +99,23 @@ describe('SSSynchronizerService', () => {
           "url": "https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnl.html",
           "staleness": Staleness.FreshlyFetched,
         }
+      ],
+      "feedPosts": [
+        {
+          "createdAt": sinon.match.number,
+          "updatedAt": sinon.match.number,
+          "postUrl": "https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html",
+          "feedUrl": "https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml",
+        },
+        {
+          "createdAt": sinon.match.number,
+          "updatedAt": sinon.match.number,
+          "postUrl": "https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnl.html",
+          "feedUrl": "https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml",
+        },
       ]
-    })
+    }
+    sinon.assert.match(result, expected)
 
     // Repeat the same thing, everything should be cached
     nock('https://www.ss.lv')
@@ -114,13 +128,13 @@ describe('SSSynchronizerService', () => {
       .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnl.html')
       .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
     const result2 = await synchronizer.syncFeedAndPosts('https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml', false)
-    expect(result2).to.deep.equal({
-      ...result,
+    sinon.assert.match(result2, {
+      ...expected,
       feed: {
-        ...result.feed,
+        ...expected.feed,
         staleness: Staleness.Cached,
       },
-      posts: result.posts.map((post: object) => ({
+      posts: expected.posts.map((post: object) => ({
         ...post,
         staleness: Staleness.Cached,
       })),
@@ -131,10 +145,10 @@ describe('SSSynchronizerService', () => {
       .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html')
       .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
     const result3 = await synchronizer.syncSsUrl('https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html', false)
-    expect(result3).to.deep.equal({
+    sinon.assert.match(result3, {
       kind: ThingKind.Post,
       data: {
-        ...result.posts[0],
+        ...expected.posts[0],
         staleness: Staleness.Cached,
       },
     })
@@ -150,9 +164,13 @@ describe('SSSynchronizerService', () => {
       .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html')
       .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
     const result4 = await synchronizer.syncSsUrl('https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml', true)
-    expect(result4).to.deep.equal({
+    sinon.assert.match(result4, {
       kind: ThingKind.FeedAndPosts,
-      data: { feed: { ...result.feed, staleness: Staleness.Cached }, posts: result.posts.map((post: object) => ({ ...post, staleness: Staleness.Cached })) },
+      data: { 
+        feed: { ...expected.feed, staleness: Staleness.Cached }, 
+        posts: expected.posts.map((post: object) => ({ ...post, staleness: Staleness.Cached })),
+        feedPosts: expected.feedPosts.map((feedPost: object) => ({ ...feedPost })),
+      },
     })
   })
 })

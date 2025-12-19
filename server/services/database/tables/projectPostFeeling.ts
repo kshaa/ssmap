@@ -33,8 +33,8 @@ const upsert = async (underlying: UnderlyingDatabase, projectId: string, postUrl
     throw new Error('Failed to upsert project post')
   }
   return {
-    projectId: result.project_id,
-    postUrl: result.post_url,
+    projectId: String(result.project_id),
+    postUrl: String(result.post_url),
     isSeen: Boolean(result.is_seen),
     stars: result.stars,
     createdAt: result.created_at,
@@ -46,9 +46,9 @@ const get = async (underlying: UnderlyingDatabase, projectId: string, postUrl: s
   const result = await underlying.db.get<{ project_id: string; post_url: string; is_seen: boolean; stars: number; created_at: number; updated_at: number }>(`SELECT * FROM project_post WHERE project_id = ? AND post_url = ?`, [projectId, postUrl])
   if (!result) return null
   return {
-    projectId: result.project_id,
-    postUrl: result.post_url,
-    isSeen: result.is_seen,
+    projectId: String(result.project_id),
+    postUrl: String(result.post_url),
+    isSeen: Boolean(result.is_seen),
     stars: result.stars,
     createdAt: result.created_at,
     updatedAt: result.updated_at,

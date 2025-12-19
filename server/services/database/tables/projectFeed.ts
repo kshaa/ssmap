@@ -28,8 +28,8 @@ const upsert = async (underlying: UnderlyingDatabase, projectId: string, feedUrl
     throw new Error('Failed to upsert project feed')
   }
   return {
-    projectId: result.project_id,
-    feedUrl: result.feed_url,
+    projectId: String(result.project_id),
+    feedUrl: String(result.feed_url),
     createdAt: result.created_at,
     updatedAt: result.updated_at,
   }
@@ -39,8 +39,8 @@ const get = async (underlying: UnderlyingDatabase, projectId: string, feedUrl: s
   const result = await underlying.db.get<{ project_id: string; feed_url: string; created_at: number; updated_at: number }>(`SELECT * FROM project_feed WHERE project_id = ? AND feed_url = ?`, [projectId, feedUrl])
   if (!result) return null
   return {
-    projectId: result.project_id,
-    feedUrl: result.feed_url,
+    projectId: String(result.project_id),
+    feedUrl: String(result.feed_url),
     createdAt: result.created_at,
     updatedAt: result.updated_at,
   }
@@ -49,8 +49,8 @@ const get = async (underlying: UnderlyingDatabase, projectId: string, feedUrl: s
 const getAll = async (underlying: UnderlyingDatabase, projectId: string): Promise<(ProjectFeed & CrudMetadata)[]> => {
   const result = await underlying.db.all<{ project_id: string; feed_url: string; created_at: number; updated_at: number }[]>(`SELECT * FROM project_feed WHERE project_id = ?`, [projectId])
   return result.map(result => ({
-    projectId: result.project_id,
-    feedUrl: result.feed_url,
+    projectId: String(result.project_id),
+    feedUrl: String(result.feed_url),
     createdAt: result.created_at,
     updatedAt: result.updated_at,
   }))

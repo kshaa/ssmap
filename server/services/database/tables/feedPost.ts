@@ -27,8 +27,8 @@ const upsert = async (underlying: UnderlyingDatabase, feedUrl: string, postUrl: 
     throw new Error('Failed to upsert feed post')
   }
   return {
-    feedUrl: result.feed_url,
-    postUrl: result.post_url,
+    feedUrl: String(result.feed_url),
+    postUrl: String(result.post_url),
     createdAt: result.created_at,
     updatedAt: result.updated_at,
   }
@@ -38,8 +38,8 @@ const get = async (underlying: UnderlyingDatabase, feedUrl: string, postUrl: str
   const result = await underlying.db.get<{ feed_url: string; post_url: string; created_at: number; updated_at: number }>(`SELECT * FROM feed_post WHERE feed_url = ? AND post_url = ?`, [feedUrl, postUrl])
   if (!result) return null
   return {
-    feedUrl: result.feed_url,
-    postUrl: result.post_url,
+    feedUrl: String(result.feed_url),
+    postUrl: String(result.post_url),
     createdAt: result.created_at,
     updatedAt: result.updated_at,
   }
@@ -48,8 +48,8 @@ const get = async (underlying: UnderlyingDatabase, feedUrl: string, postUrl: str
 const getAll = async (underlying: UnderlyingDatabase, feedUrl: string): Promise<(FeedPost & CrudMetadata)[]> => {
   const result = await underlying.db.all<{ feed_url: string; post_url: string; created_at: number; updated_at: number }[]>(`SELECT * FROM feed_post WHERE feed_url = ?`, [feedUrl])
   return result.map(result => ({
-    feedUrl: result.feed_url,
-    postUrl: result.post_url,
+    feedUrl: String(result.feed_url),
+    postUrl: String(result.post_url),
     createdAt: result.created_at,
     updatedAt: result.updated_at,
   }))
