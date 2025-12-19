@@ -1,5 +1,6 @@
 import { CrudMetadata } from "./crudMetadata"
 import { ParsedFeedWithUrl } from "./feed"
+import { FeedPost } from "./feedPost"
 import { ParsedPostWithUrl } from "./post"
 
 export enum Staleness {
@@ -14,7 +15,7 @@ export interface WithStaleness {
 
 export type PostSync = ParsedPostWithUrl & CrudMetadata & WithStaleness
 export type FeedSync = ParsedFeedWithUrl & CrudMetadata & WithStaleness
-export type FeedAndPostsSync = { feed: ParsedFeedWithUrl & CrudMetadata, posts: (ParsedPostWithUrl & CrudMetadata)[] }
+export type FeedAndPostsSync = { feed: ParsedFeedWithUrl & CrudMetadata, posts: (ParsedPostWithUrl & CrudMetadata)[], feedPosts: (FeedPost & CrudMetadata)[] }
 
 export enum ThingKind {
   Post = 'post',

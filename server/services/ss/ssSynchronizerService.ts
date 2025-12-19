@@ -8,6 +8,7 @@ import { CrudMetadata } from "@shared/crudMetadata"
 import { PostSync, FeedSync, FeedAndPostsSync, ThingSync, WithStaleness, ThingKind, Staleness } from "@shared/synchronizedThing"
 import { logger } from "../logging/logger"
 import { urlInspect } from "./urlInspect"
+import { FeedPost } from "@shared/feedPost"
 
 export interface SSSynchronizerService {
   syncPost: (postUrl: string) => Promise<PostSync>
@@ -79,7 +80,7 @@ const syncFeed = async (state: State, rawFeedUrl: string, isListingPage: boolean
   })
 }
 
-const syncFeedAndPosts = async (state: State, rawFeedUrl: string, isListingPage: boolean): Promise<{ feed: ParsedFeedWithUrl & CrudMetadata, posts: (ParsedPostWithUrl & CrudMetadata)[] }> => {
+const syncFeedAndPosts = async (state: State, rawFeedUrl: string, isListingPage: boolean): Promise<{ feed: ParsedFeedWithUrl & CrudMetadata, posts: (ParsedPostWithUrl & CrudMetadata)[], feedPosts: (FeedPost & CrudMetadata)[] }> => {
   logger.info(`Syncing feed and posts ${rawFeedUrl}`)
   const feed = await syncFeed(state, rawFeedUrl, isListingPage)
 
@@ -87,9 +88,9 @@ const syncFeedAndPosts = async (state: State, rawFeedUrl: string, isListingPage:
   const posts = await Promise.all(feed.data.posts.map(post => syncPost(state, post.url)))
 
   // TODO: DB should support batching (but I'm not going for performance right now)
-  await Promise.all(posts.map(post => state.database.tables.feedPost.upsert(feed.url, post.url)))
+  const feedPosts = await Promise.all(posts.map(post => state.database.tables.feedPost.upsert(feed.url, post.url)))
 
-  return { feed, posts }
+  return { feed, posts, feedPosts }
 }
 
 const syncSsUrl = async (state: State, url: string, isDeepSearch: boolean): Promise<ThingSync> => {

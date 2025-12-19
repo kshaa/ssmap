@@ -1,4 +1,4 @@
-import { ThingKind } from "@shared/synchronizedThing"
+import { FeedAndPostThingSync, PostThingSync, ThingKind } from "@shared/synchronizedThing"
 import { Project, ProjectWithContentAndMetadata } from "@shared/project"
 import { ProjectPostFeeling } from "@shared/projectPostFeeling"
 import { DatabaseService } from "../database/initDatabase"
@@ -8,7 +8,7 @@ import { SSSynchronizerService } from "./ssSynchronizerService"
 export interface SSProjectService {
   upsertProject: (project: Project) => Promise<Project & CrudMetadata>
   getProject: (id: string) => Promise<ProjectWithContentAndMetadata>
-  addThing: (projectId: string, thingUrl: string) => Promise<void>
+  addThing: (projectId: string, thingUrl: string) => Promise<PostThingSync | FeedAndPostThingSync>
   ratePost: (projectId: string, postUrl: string, rating: Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>) => Promise<void>
 }
 
@@ -42,15 +42,17 @@ const getProject = async (state: State, id: string): Promise<ProjectWithContentA
   return { project, projectPosts, projectFeeds, feeds, feedPosts, posts }
 }
 
-const addThing = async (state: State, projectId: string, thingUrl: string): Promise<void> => {
-  const { kind } = await state.syncService.syncSsUrl(thingUrl, true)
-  if (kind === ThingKind.Post) {
+const addThing = async (state: State, projectId: string, thingUrl: string): Promise<PostThingSync | FeedAndPostThingSync> => {
+  const thing = await state.syncService.syncSsUrl(thingUrl, true)
+  if (thing.kind === ThingKind.Post) {
     await state.database.tables.projectPost.upsert(projectId, thingUrl)
-  } else if (kind === ThingKind.Feed) {
+  } else if (thing.kind === ThingKind.FeedAndPosts) {
     await state.database.tables.projectFeed.upsert(projectId, thingUrl)
   } else {
-    throw new Error(`Invalid thing kind ${kind}`)
+    throw new Error(`Invalid thing kind ${thing.kind}`)
   }
+
+  return thing
 }
 
 const ratePost = async (state: State, projectId: string, postUrl: string, rating: Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>): Promise<void> => {
