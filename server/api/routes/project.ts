@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const router = createRouter()
 
-router.post('/project/create', async (ctx) => {
+router.post('/project', async (ctx) => {
   const body = await z.object({ name: z.string() }).parseAsync(ctx.request.body).catch((e) => { throw new ParseError({ entity: 'body', isUserError: true }, e) })
   const project = await ctx.services.ssProjectService.upsertProject({ id: uuidv4(), name: body.name })
 

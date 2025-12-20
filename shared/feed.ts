@@ -1,4 +1,4 @@
-import z from "zod"
+import { z } from 'zod'
 
 export interface PostReference {
   url: string
@@ -9,8 +9,8 @@ export const postReferenceSchema = z.object({
 })
 
 export interface ParsedFeed {
-  title?: string
-  ttlSeconds?: number
+  title?: string | null
+  ttlSeconds?: number | null
   posts: PostReference[]
 }
 

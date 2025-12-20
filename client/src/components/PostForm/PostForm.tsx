@@ -24,9 +24,7 @@ const PostForm = ({ addErrorMessage, appendPosts }: PostFormProps) => {
   }
 
   const formOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    const target = event.target as HTMLFormElement
-
-    fetchSSPosts(target.action, formData.url)
+    fetchSSPosts(formData.url)
       .then(post => {
         appendPosts(post)
       })
@@ -40,8 +38,6 @@ const PostForm = ({ addErrorMessage, appendPosts }: PostFormProps) => {
 
   return (
     <Form
-      formAction="/api/syncUrl"
-      formMethod="post"
       formOnSubmit={formOnSubmit}
       skin={{
         centered: true,

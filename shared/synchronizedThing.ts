@@ -1,5 +1,5 @@
-import z from "zod"
-import { CrudMetadata } from "./crudMetadata"
+import { z } from 'zod'
+import { CrudMetadata, crudMetadataSchema } from "./crudMetadata"
 import { ParsedFeedWithUrl, parsedFeedWithUrlSchema } from "./feed"
 import { FeedPost, feedPostSchema } from "./feedPost"
 import { ParsedPostWithUrl, parsedPostWithUrlSchema } from "./post"
@@ -13,6 +13,10 @@ export enum Staleness {
 export interface WithStaleness {
   staleness: Staleness
 }
+
+export const withStalenessSchema = z.object({
+  staleness: z.enum(Object.values(Staleness)),
+})
 
 export type PostSync = ParsedPostWithUrl & CrudMetadata & WithStaleness
 export type FeedSync = ParsedFeedWithUrl & CrudMetadata & WithStaleness
@@ -32,20 +36,20 @@ export type ThingSync = PostThingSync | FeedThingSync | FeedAndPostThingSync
 
 export const postThingSyncSchema = z.object({
   kind: z.literal(ThingKind.Post),
-  data: parsedPostWithUrlSchema,
+  data: parsedPostWithUrlSchema.and(crudMetadataSchema).and(withStalenessSchema),
 })
 
 export const feedThingSyncSchema = z.object({
   kind: z.literal(ThingKind.Feed).or(z.literal(ThingKind.ListingPage)),
-  data: parsedFeedWithUrlSchema,
+  data: parsedFeedWithUrlSchema.and(crudMetadataSchema).and(withStalenessSchema),
 })
 
 export const feedAndPostThingSyncSchema = z.object({
   kind: z.literal(ThingKind.FeedAndPosts).or(z.literal(ThingKind.ListingPageAndPosts)),
   data: z.object({
-    feed: parsedFeedWithUrlSchema,
-    posts: parsedPostWithUrlSchema.array(),
-    feedPosts: feedPostSchema.array(),
+    feed: parsedFeedWithUrlSchema.and(crudMetadataSchema).and(withStalenessSchema),
+    posts: parsedPostWithUrlSchema.and(crudMetadataSchema).and(withStalenessSchema).array(),
+    feedPosts: feedPostSchema.and(crudMetadataSchema).and(withStalenessSchema).array(),
   }),
 })
 

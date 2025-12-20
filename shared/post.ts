@@ -16,9 +16,24 @@ export interface AddressInfo {
   coordinates?: Partial<NullableFields<Coordinates>> | null
 }
 
+export const addressInfoSchema = z.object({
+  street: z.string().nullable().optional(),
+  city: z.string().nullable().optional(),
+  state: z.string().nullable().optional(),
+  coordinates: z
+    .object({
+      lat: z.number().nullable().optional(),
+      lng: z.number().nullable().optional(),
+    })
+    .nullable()
+    .optional(),
+})
+
 export interface GenericInfo {
   [key: string]: string
 }
+
+export const genericInfoSchema = z.record(z.string(), z.string())
 
 export interface ParsedPost {
   addressInfo: AddressInfo
@@ -27,6 +42,13 @@ export interface ParsedPost {
   title?: string | null
 }
 
+export const parsedPostSchema = z.object({
+  addressInfo: addressInfoSchema,
+  genericInfo: genericInfoSchema,
+  price: z.string().nullable().optional(),
+  title: z.string().nullable().optional(),
+})
+
 export interface ParsedPostWithUrl {
   url: string
   data: ParsedPost
@@ -34,23 +56,7 @@ export interface ParsedPostWithUrl {
 
 export const parsedPostWithUrlSchema = z.object({
   url: z.string(),
-  data: z.object({
-    addressInfo: z.object({
-      street: z.string().nullable().optional(),
-      city: z.string().nullable().optional(),
-      state: z.string().nullable().optional(),
-      coordinates: z
-        .object({
-          lat: z.number().nullable().optional(),
-          lng: z.number().nullable().optional(),
-        })
-        .nullable()
-        .optional(),
-    }),
-    genericInfo: z.record(z.string(), z.string()),
-    price: z.string().nullable().optional(),
-    title: z.string().nullable().optional(),
-  }),
+  data: parsedPostSchema,
 })
 
 export type ParsedPostWithUrlSchemaType = z.infer<typeof parsedPostWithUrlSchema>

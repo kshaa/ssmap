@@ -1,4 +1,4 @@
-import { CrudMetadata } from "./crudMetadata"
+import { CrudMetadata, crudMetadataSchema } from "./crudMetadata"
 import { ParsedPostWithUrl, parsedPostWithUrlSchema } from "./post"
 import { ParsedFeedWithUrl, parsedFeedWithUrlSchema } from "./feed"
 import { ProjectFeed, projectFeedSchema } from "./projectFeed"
@@ -26,10 +26,10 @@ export const projectSchema = z.object({
 })
 
 export const projectWithContentAndMetadataSchema = z.object({
-  project: projectSchema,
-  projectPosts: projectPostSchema.array(),
-  projectFeeds: projectFeedSchema.array(),
-  feeds: parsedFeedWithUrlSchema.array(),
-  feedPosts: feedPostSchema.array(),
-  posts: parsedPostWithUrlSchema.array(),
+  project: projectSchema.and(crudMetadataSchema),
+  projectPosts: projectPostSchema.and(crudMetadataSchema).array(),
+  projectFeeds: projectFeedSchema.and(crudMetadataSchema).array(),
+  feeds: parsedFeedWithUrlSchema.and(crudMetadataSchema).array(),
+  feedPosts: feedPostSchema.and(crudMetadataSchema).array(),
+  posts: parsedPostWithUrlSchema.and(crudMetadataSchema).array(),
 })
