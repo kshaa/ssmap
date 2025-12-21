@@ -1,9 +1,9 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { Coordinates, ParsedPostWithUrl } from '@shared/post'
 import { FeedAndPostThingSync, PostThingSync, ThingKind } from '@shared/synchronizedThing'
 import { ProjectWithContentAndMetadata } from '@shared/project'
 import { ProjectManagement } from './useProjectManagement'
-import { fetchProjectGetThings } from '@src/services/apiService'
+import { fetchProjectGetThings, fetchProjectRateThing } from '@src/services/apiService'
 import { ProjectPostFeeling } from '@shared/projectPostFeeling'
 
 const latviaZoom = 7
@@ -23,16 +23,19 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
     let posts: typeof projectWithContent.posts
     let projectPosts: typeof projectWithContent.projectPosts
     let projectFeeds: typeof projectWithContent.projectFeeds
+    let projectPostFeelings: typeof projectWithContent.projectPostFeelings
     switch (thing.kind) {
       case ThingKind.Post:
         posts = [thing.data]
         projectPosts = [{ projectId: projectWithContent.project.id, postUrl: thing.data.url, createdAt: thing.data.createdAt, updatedAt: thing.data.updatedAt }]
         projectFeeds = []
+        projectPostFeelings = [{ projectId: projectWithContent.project.id, postUrl: thing.data.url, isSeen: true, stars: 0, createdAt: thing.data.createdAt, updatedAt: thing.data.updatedAt }]
         break
       case ThingKind.FeedAndPosts:
         posts = thing.data.posts
         projectPosts = thing.data.posts.map(post => ({ projectId: projectWithContent.project.id, postUrl: post.url, createdAt: post.createdAt, updatedAt: post.updatedAt }))
         projectFeeds = thing.data.feedPosts.map(feedPost => ({ projectId: projectWithContent.project.id, feedUrl: feedPost.feedUrl, createdAt: feedPost.createdAt, updatedAt: feedPost.updatedAt }))
+        projectPostFeelings = thing.data.posts.map(post => ({ projectId: projectWithContent.project.id, postUrl: post.url, isSeen: true, stars: 0, createdAt: post.createdAt, updatedAt: post.updatedAt }))
         break
       default:
         throw new Error(`Invalid thing kind ${thing.kind}`)
@@ -45,6 +48,7 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
         posts: [...prev.posts, ...posts],
         projectPosts: [...prev.projectPosts, ...projectPosts],
         projectFeeds: [...prev.projectFeeds, ...projectFeeds],
+        projectPostFeelings: [...prev.projectPostFeelings, ...projectPostFeelings],
       }
     })
     
@@ -65,13 +69,23 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
     }
   }, [])
 
-  // const ratePost = useCallback((post: ParsedPostWithUrl, rating: ProjectPostFeeling) => {
-  //   if (!projectWithContent) {
-  //     console.error('Base project missing, cannot rate post')
-  //     return
-  //   }
-  //   fetchProjectRatePost(projectManagement.selectedProjectId, post.url, rating)
-  // }, [projectWithContent, projectManagement.selectedProjectId])
+  const ratePost = useCallback((post: ParsedPostWithUrl, rating: Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>) => {
+    if (!projectManagement.selectedProjectId) {
+      console.error('Base project missing, cannot rate post')
+      return
+    }
+    fetchProjectRateThing(projectManagement.selectedProjectId, post.url, rating).then(() => {
+      setProjectWithContent(prev => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          projectPostFeelings: prev.projectPostFeelings.map(projectPostFeeling => projectPostFeeling.postUrl === post.url ? { ...projectPostFeeling, ...rating } : projectPostFeeling),
+        }
+      })
+    }).catch(error => {
+      console.error('Failed to rate post', error)
+    })
+  }, [projectManagement.selectedProjectId])
 
   useEffect(() => {
     console.log('Loading project data for selectedProjectId', projectManagement.selectedProjectId)
@@ -89,13 +103,23 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
     })
   }, [projectManagement.selectedProjectId])
 
+  const postRatings = useMemo(() => {
+    if (!projectWithContent) return {}
+    return Object.fromEntries(projectWithContent.projectPostFeelings.map(projectPostFeeling => {
+      const { projectId, postUrl, ...rating } = projectPostFeeling
+      return [postUrl, rating]
+    }))
+  }, [projectWithContent])
+
   return {
     projectWithContent,
     mapCenterCoordinates,
     mapZoom,
     focusedPost,
+    postRatings,
     appendPosts,
     focusPost,
+    ratePost,
   }
 }
 

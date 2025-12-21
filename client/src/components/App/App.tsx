@@ -76,6 +76,8 @@ const App = () => {
     focusedPost,
     appendPosts,
     focusPost,
+    ratePost,
+    postRatings,
   } = useThingManagement(projectManagement)
 
   return (
@@ -111,11 +113,15 @@ const App = () => {
                 <InfoWrapper $isHorizontal={isLandscape}>
                   <PostList
                     postList={projectWithContent?.posts ?? []}
+                    postRatings={postRatings}
+                    ratePost={ratePost}
                     isHorizontal={isLandscape}
                     focusPost={focusPost}
                   />
                   <PostMap
                     postList={projectWithContent?.posts ?? []}
+                    postRatings={postRatings}
+                    ratePost={ratePost}
                     defaultCenter={mapCenterCoordinates}
                     defaultZoom={mapZoom}
                     focusedPost={focusedPost}

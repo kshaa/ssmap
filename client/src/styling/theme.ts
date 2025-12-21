@@ -8,10 +8,13 @@ export const theme = {
     mercury: '#e3e3e3',
     monza: '#d8000c',
     pink: '#ffbaba',
+    yellow: '#ffff00',
   },
 
   // Color modification percentages (for manual calculations)
   contrast: {
+    verySoft: 0.01,
+    soft: 0.05,
     light: 0.1,
     medium: 0.2,
     hard: 0.3,
@@ -63,3 +66,9 @@ export const lighten = (color: string, amount: number): string => {
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
 }
 
+// Helper function to make colors transparent, simply appends to hex color two digits for alpha
+export const transparentify = (color: string, amount: number): string => {
+  const hex = color.replace('#', '')
+  const a = Math.floor(255 * amount)
+  return `#${hex}${a.toString(16).padStart(2, '0')}`
+}

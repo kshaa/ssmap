@@ -1,11 +1,14 @@
 import styled from 'styled-components'
-import { theme, darken, lighten } from '@src/styling/theme'
+import { theme, darken, lighten, transparentify } from '@src/styling/theme'
 import { ParsedPostWithUrl } from '@shared/post'
+import { ProjectPostFeeling } from '@shared/projectPostFeeling'
 
 interface PostListProps {
   postList: ParsedPostWithUrl[]
   focusPost: (post: ParsedPostWithUrl) => () => void
   // removePost: (post: ParsedPostWithUrl) => () => void
+  postRatings: Record<string, Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>>
+  ratePost: (post: ParsedPostWithUrl, rating: Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>) => void
   isHorizontal?: boolean
 }
 
@@ -48,7 +51,7 @@ const PostListContent = styled.div<{ $isHorizontal?: boolean }>`
   `}
 `
 
-const Post = styled.div<{ $isFaulty?: boolean }>`
+const Post = styled.div<{ $isSeen?: boolean, $isFaulty?: boolean }>`
   margin-bottom: ${theme.spacing.m};
   display: block;
   padding: 10px;
@@ -60,7 +63,9 @@ const Post = styled.div<{ $isFaulty?: boolean }>`
   ${props => props.$isFaulty && `
     background-color: ${lighten(theme.colors.pink, theme.contrast.light)};
   `}
-
+  ${props => !props.$isFaulty && !props.$isSeen && `
+    background-color: ${transparentify(lighten(theme.colors.yellow, theme.contrast.light), 0.5)};
+  `}
   &:hover {
     border-color: ${darken(theme.colors.mercury, theme.contrast.hard)};
   }
@@ -78,40 +83,71 @@ const PostTitle = styled.div`
 `
 
 const PostActionBar = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   position: relative;
   margin-top: 10px;
   padding: 25px 0 15px;
   border-top: 1px solid ${theme.colors.mercury};
 `
 
-const PostRemove = styled.button`
-  position: absolute;
-  right: 5px;
-  bottom: 13px;
-  max-height: 26px;
-  border: 0;
-  background: transparent;
-  color: ${theme.colors.monza};
-  transform: scale(1.5);
-  transition: ${theme.transitions.fast};
-  outline: 0;
+const Star = styled.span<{ isSelected?: boolean }>`
   cursor: pointer;
+  color: ${props => props.isSelected ? 'yellow!' : 'gray'} !important;
 
-  &:hover {
-    transform: scale(1.8);
-  }
-
-  &:active {
-    transform: scale(2);
-  }
+  background: #0000002e;
+  border-radius: 100%;
+  padding: 0 4px;
+  color: yellow;
+  margin: 0 5px 0 0;
 `
 
-const PostList = ({ postList, focusPost, isHorizontal = false }: PostListProps) => {
+const FakeLink = styled.span`
+  cursor: pointer;
+  text-decoration: underline;
+`
+
+// const PostRemove = styled.button`
+//   position: absolute;
+//   right: 5px;
+//   bottom: 13px;
+//   max-height: 26px;
+//   border: 0;
+//   background: transparent;
+//   color: ${theme.colors.monza};
+//   transform: scale(1.5);
+//   transition: ${theme.transitions.fast};
+//   outline: 0;
+//   cursor: pointer;
+
+//   &:hover {
+//     transform: scale(1.8);
+//   }
+
+//   &:active {
+//     transform: scale(2);
+//   }
+// `
+
+const PostList = ({ postList, postRatings, ratePost, focusPost, isHorizontal = false }: PostListProps) => {
   const renderPost = (post: ParsedPostWithUrl) => {
     const isFaulty = !post.data.addressInfo?.coordinates || !post.data.addressInfo?.coordinates.lat || !post.data.addressInfo?.coordinates.lng
+    const postRating = postRatings[post.url] ?? {}
+    const stars = postRating.stars ?? 0
+    const isSeen = postRating.isSeen ?? false
+    const handleStarClick = (index: number, e: React.MouseEvent) => {
+      e.stopPropagation()
+      ratePost(post, { stars: index + 1, isSeen: true })
+    }
+
+    const handleMarkAsSeen = (e: React.MouseEvent) => {
+      e.stopPropagation()
+      ratePost(post, { stars: stars, isSeen: true })
+    }
 
     return (
-      <Post $isFaulty={isFaulty} key={post.url} onClick={focusPost(post)}>
+      <Post $isSeen={isSeen} $isFaulty={isFaulty} key={post.url} onClick={focusPost(post)}>
         <PostTitle>{post.data.title}</PostTitle>
         <PostActionBar>
           <div>
@@ -120,11 +156,22 @@ const PostList = ({ postList, focusPost, isHorizontal = false }: PostListProps) 
           </div>
           <div>
             <strong>Saite: </strong>
-            <a href={post.url} target="_blank" rel="noopener noreferrer">Apskatīt</a>
+            <a href={post.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>Apskatīt</a>
           </div>
           {/* <PostRemove onClick={removePost(post)}>
             {'✖'}
           </PostRemove> */}
+          <div>
+            <strong>Vērtējums: </strong>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <Star key={index} onClick={(e) => handleStarClick(index, e)} isSelected={index < stars}>{index < stars ? '★' : '☆'}</Star>
+            ))}
+          </div>
+          {!isSeen && <div>
+            <strong>Neapskatīts: </strong>
+              <FakeLink onClick={(e) => handleMarkAsSeen(e)}>Marķēt kā apskatītu</FakeLink>
+            </div>
+          }
         </PostActionBar>
       </Post>
     )

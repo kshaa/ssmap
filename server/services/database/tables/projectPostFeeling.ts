@@ -5,6 +5,7 @@ import { UnderlyingDatabase } from '@src/services/database/initDatabase'
 export interface ProjectPostFeelingTable {
   upsert: (projectId: string, postUrl: string, feeling: Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>) => Promise<ProjectPostFeeling & CrudMetadata>
   get: (projectId: string, postUrl: string) => Promise<(ProjectPostFeeling & CrudMetadata) | null>
+  getAll: (projectId: string) => Promise<(ProjectPostFeeling & CrudMetadata)[]>
 }
 
 const upsert = async (underlying: UnderlyingDatabase, projectId: string, postUrl: string, feeling: Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>) => {
@@ -55,10 +56,23 @@ const get = async (underlying: UnderlyingDatabase, projectId: string, postUrl: s
   }
 }
 
+const getAll = async (underlying: UnderlyingDatabase, projectId: string) => {
+  const result = await underlying.db.all<{ project_id: string; post_url: string; is_seen: boolean; stars: number; created_at: number; updated_at: number }[]>(`SELECT * FROM project_post_feeling WHERE project_id = ?`, [projectId])
+  return result.map(result => ({
+    projectId: String(result.project_id),
+    postUrl: String(result.post_url),
+    isSeen: Boolean(result.is_seen),
+    stars: result.stars,
+    createdAt: result.created_at,
+    updatedAt: result.updated_at,
+  }))
+}
+
 export const createProjectPostFeelingTable = (underlying: UnderlyingDatabase): ProjectPostFeelingTable => {
   // Partially applied, curried functions
   return {
     upsert: upsert.bind(null, underlying),
     get: get.bind(null, underlying),
+    getAll: getAll.bind(null, underlying),
   }
 }

@@ -5,6 +5,7 @@ import { ProjectFeed, projectFeedSchema } from "./projectFeed"
 import { ProjectPost, projectPostSchema } from "./projectPost"
 import { FeedPost, feedPostSchema } from "./feedPost"
 import { z } from "zod"
+import { ProjectPostFeeling, projectPostFeelingSchema } from "./projectPostFeeling"
 
 export interface Project {
   id: string
@@ -18,6 +19,7 @@ export interface ProjectWithContentAndMetadata {
   feeds: (ParsedFeedWithUrl & CrudMetadata)[]
   feedPosts: (FeedPost & CrudMetadata)[]
   posts: (ParsedPostWithUrl & CrudMetadata)[]
+  projectPostFeelings: (ProjectPostFeeling & CrudMetadata)[]
 }
 
 export const projectSchema = z.object({
@@ -32,4 +34,5 @@ export const projectWithContentAndMetadataSchema = z.object({
   feeds: parsedFeedWithUrlSchema.and(crudMetadataSchema).array(),
   feedPosts: feedPostSchema.and(crudMetadataSchema).array(),
   posts: parsedPostWithUrlSchema.and(crudMetadataSchema).array(),
+  projectPostFeelings: projectPostFeelingSchema.and(crudMetadataSchema).array(),
 })

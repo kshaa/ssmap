@@ -12,6 +12,8 @@ const parseFetchJson = async <T>(fetchPromise: Promise<Response>, schema: z.ZodS
   })
 
   const json = await response.json().catch(err => {
+    // If it's a void schema, don't fail on JSON parse error
+    if (schema.safeParse(null).success) return null
     throw new ParseError({ entity: 'responseBody', isUserError: false }, err)
   })
 
@@ -65,14 +67,14 @@ export const fetchProjectGetThings = async (projectId: string): Promise<ProjectW
   return await parseFetchJson<ProjectWithContentAndMetadata>(fetchPromise, schema)
 }
 
-export const fetchProjectRateThing = async (projectId: string, postUrl: string, rating: ProjectPostFeeling): Promise<void> => {
+export const fetchProjectRateThing = async (projectId: string, postUrl: string, rating: Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>): Promise<void> => {
   const fetchPromise = fetch(`/api/project/${projectId}/thing/rating`, {
-    method: 'GET',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ postUrl, rating }),
   })
-  const schema = z.void()
-  return await parseFetchJson<void>(fetchPromise, schema)
+  const schema = z.any()
+  await parseFetchJson<void>(fetchPromise, schema)
 }

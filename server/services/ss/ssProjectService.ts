@@ -40,15 +40,18 @@ const getProject = async (state: State, id: string): Promise<ProjectWithContentA
   const feedPosts = await state.database.tables.feedPost.getAll(id)
   const postUrls = [...(new Set([...feedPosts.map(feedPost => feedPost.postUrl), ...projectPosts.map(projectPost => projectPost.postUrl)]))]
   const posts = await Promise.all(postUrls.map(postUrl => state.database.tables.post.get(postUrl))).then(posts => posts.filter(post => post !== null))
-  return { project, projectPosts, projectFeeds, feeds, feedPosts, posts }
+  const projectPostFeelings = await state.database.tables.projectPostFeeling.getAll(id)
+  return { project, projectPosts, projectFeeds, feeds, feedPosts, posts, projectPostFeelings }
 }
 
 const addThing = async (state: State, projectId: string, thingUrl: string): Promise<PostThingSync | FeedAndPostThingSync> => {
   const thing = await state.syncService.syncSsUrl(thingUrl, true)
   if (thing.kind === ThingKind.Post) {
     await state.database.tables.projectPost.upsert(projectId, thing.data.url)
+    await state.database.tables.projectPostFeeling.upsert(projectId, thing.data.url, { isSeen: true, stars: 0 })
   } else if (thing.kind === ThingKind.FeedAndPosts) {
     await state.database.tables.projectFeed.upsert(projectId, thing.data.feed.url)
+    await Promise.all(thing.data.posts.map(post => state.database.tables.projectPostFeeling.upsert(projectId, post.url, { isSeen: true, stars: 0 })))
   } else {
     throw new Error(`Invalid thing kind ${thing.kind}`)
   }

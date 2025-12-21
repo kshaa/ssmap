@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { Coordinates, ParsedPostWithUrl } from '@shared/post'
+import { ProjectPostFeeling } from '@shared/projectPostFeeling'
 
 // Fix for default marker icon in Leaflet with Webpack
 const markerIcon2x = require('leaflet/dist/images/marker-icon-2x.png').default
@@ -19,6 +20,8 @@ L.Icon.Default.mergeOptions({
 
 interface PostMapProps {
   postList: ParsedPostWithUrl[]
+  postRatings: Record<string, Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>>
+  ratePost: (post: ParsedPostWithUrl, rating: Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>) => void
   defaultCenter: Coordinates
   defaultZoom: number
   focusedPost: ParsedPostWithUrl | null
@@ -84,8 +87,26 @@ const InfoBoxLinkText = styled.span`
   margin-right: 10px;
 `
 
+const FakeLink = styled.span`
+  cursor: pointer;
+  text-decoration: underline;
+`
+
+const Star = styled.span<{ isSelected?: boolean }>`
+  cursor: pointer;
+  color: ${props => props.isSelected ? 'yellow!' : 'gray'} !important;
+
+  background: #0000002e;
+  border-radius: 100%;
+  padding: 0 3px;
+  color: yellow;
+  margin: 0 4px 0 0;
+`
+
 const PostMap = ({
   postList,
+  postRatings,
+  ratePost,
   defaultCenter,
   defaultZoom,
   focusedPost,
@@ -103,26 +124,39 @@ const PostMap = ({
     }
   }, [focusedPost, defaultZoom])
 
-  const renderPostInfo = (post: ParsedPostWithUrl) => {
-    const postInfos = Object.entries(post.data.genericInfo ? post.data.genericInfo : {}).map(
-      ([attribute, value]) => {
-        return (
-          <div key={attribute}>
-            <InfoBoxAttribute>
-              {attribute}:
-            </InfoBoxAttribute>
-            <InfoBoxValue>
-              {String(value)}
-            </InfoBoxValue>
-          </div>
-        )
-      }
+  const renderAttribute = (attribute: string, value: string | React.ReactNode) => {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }} key={attribute}>
+        <InfoBoxAttribute>{attribute}:</InfoBoxAttribute>
+        <InfoBoxValue>{value}</InfoBoxValue>
+      </div>
     )
+  }
+
+  const renderPostInfo = (post: ParsedPostWithUrl) => {
+    const postRating = postRatings[post.url] ?? {}
+    const stars = postRating.stars ?? 0
+    const isSeen = postRating.isSeen ?? false
+    const postInfos = Object.entries(post.data.genericInfo ? post.data.genericInfo : {}).map(
+      ([attribute, value]) => renderAttribute(attribute, String(value))
+    )
+    const handleMarkAsSeen = (e: React.MouseEvent) => {
+      e.stopPropagation()
+      ratePost(post, { stars: stars, isSeen: true })
+    }
+    const handleStarClick = (index: number, e: React.MouseEvent) => {
+      e.stopPropagation()
+      ratePost(post, { stars: index + 1, isSeen: true })
+    }
 
     return (
       <InfoBox>
         <InfoBoxTitle>{post.data.title}</InfoBoxTitle>
         <div>{postInfos}</div>
+        {renderAttribute('Vērtējums', Array.from({ length: 5 }).map((_, index) => (
+          <Star key={index} onClick={(e) => handleStarClick(index, e)} isSelected={index < stars}>{index < stars ? '★' : '☆'}</Star>
+        )))}
+        {!isSeen && renderAttribute('Neapskatīts', <FakeLink onClick={(e) => handleMarkAsSeen(e)}>Marķēt kā apskatītu</FakeLink>)}
         <InfoBoxActionBar>
           <strong>{post.data.price}</strong>
           <InfoBoxPostLink
