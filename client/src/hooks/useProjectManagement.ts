@@ -1,28 +1,29 @@
+import { Project } from "@shared/project"
 import { useCallback, useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 const PROJECT_STORAGE_KEY = 'projects'
 const SELECTED_PROJECT_STORAGE_KEY = 'selectedProjectId'
 
-const getPersistedProjects = () => {
+const getPersistedProjects = (): Project[] => {
   return JSON.parse(localStorage.getItem(PROJECT_STORAGE_KEY) || '[]')
 }
 
-const setPersistedProjects = (projects: string[]) => {
+const setPersistedProjects = (projects: Project[]) => {
   localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(projects))
 }
 
-const addPersistedProject = (project: { id: string, name: string }) => {
+const addPersistedProject = (project: Project): void => {
   const projects = getPersistedProjects()
   projects.push(project)
   setPersistedProjects(projects)
 }
 
-const getPersistedSelectedProjectId = () => {
+const getPersistedSelectedProjectId = (): string | null => {
   return JSON.parse(localStorage.getItem(SELECTED_PROJECT_STORAGE_KEY) ?? 'null')
 }
 
-const setPersistedSelectedProjectId = (projectId: string | null) => {
+const setPersistedSelectedProjectId = (projectId: string | null): void => {
   localStorage.setItem(SELECTED_PROJECT_STORAGE_KEY, JSON.stringify(projectId))
 }
 
@@ -38,7 +39,9 @@ export const useProjectManagement = () => {
   }, [setPersistedSelectedProjectId])
 
   useEffect(() => {
-    setProjects(getPersistedProjects())
+    const persistedProjects = getPersistedProjects()
+    setProjects(persistedProjects)
+    console.log('Persisted projects', persistedProjects)
     const projectFromUrlPath = location.pathname.match(/^\/project\/([a-f0-9-]+)$/) ?? null
     if (projectFromUrlPath) {
       // Parses /project/:projectId to get the projectId
