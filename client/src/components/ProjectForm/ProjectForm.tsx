@@ -4,17 +4,17 @@ import Field from '@src/components/Field/Field'
 import URL from 'url-parse'
 import { PostThingSync } from '@shared/synchronizedThing'
 import { FeedAndPostThingSync } from '@shared/synchronizedThing'
-import { fetchProjectCreateThing } from '@src/services/apiService'
-export interface PostFormProps {
-  projectId: string
+import { fetchProjectCreate, fetchProjectCreateThing } from '@src/services/apiService'
+import { ProjectManagement } from '@src/hooks/useProjectManagement'
+
+export interface CreateProjectFormProps {
+  projectManagement: ProjectManagement
   addErrorMessage: (message: string) => void
-  appendPosts: (post: PostThingSync | FeedAndPostThingSync) => void
 }
 
-const PostForm = ({ projectId, addErrorMessage, appendPosts }: PostFormProps) => {
-  const url = new URL(window.location.href, true)
+const CreateProjectForm = ({ projectManagement, addErrorMessage }: CreateProjectFormProps) => {
   const [formData, setFormData] = useState({
-    url: url.query.post || '',
+    name: '',
   })
 
   const fieldOnChange = (event: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
@@ -25,9 +25,9 @@ const PostForm = ({ projectId, addErrorMessage, appendPosts }: PostFormProps) =>
   }
 
   const formOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    fetchProjectCreateThing(projectId, formData.url)
-      .then(post => {
-        appendPosts(post)
+    fetchProjectCreate(formData.name)
+      .then(project => {
+        projectManagement.createProject(project.id, project.name)
       })
       .catch((error: unknown) => {
         console.error(error)
@@ -44,10 +44,10 @@ const PostForm = ({ projectId, addErrorMessage, appendPosts }: PostFormProps) =>
       withMargin={true}
     >
       <Field
-        fieldLabel="SS.lv sludinājuma saite"
+        fieldLabel="Projekta nosaukums"
         fieldType="text"
-        fieldName="url"
-        fieldValue={formData.url}
+        fieldName="name"
+        fieldValue={formData.name}
         fieldOnChange={fieldOnChange}
         fullWidth={true}
       />
@@ -55,4 +55,4 @@ const PostForm = ({ projectId, addErrorMessage, appendPosts }: PostFormProps) =>
   )
 }
 
-export default PostForm
+export default CreateProjectForm

@@ -60,7 +60,7 @@ export const buildApp = (config: Config, services: Services): App => {
         err instanceof BaseError ? err : new UnknownError('Unhandled API error', err, {})
       ctx.status = error.code
       ctx.body = error.serialize()
-      ctx.app.emit('error', err, ctx)
+      ctx.app.emit('error', error, ctx)
     }
   })
 

@@ -17,6 +17,11 @@ const parseFetchJson = async <T>(fetchPromise: Promise<Response>, schema: z.ZodS
   const parsedError = parseAppError(json)
   if (parsedError) throw parsedError
 
+  if (response.status >= 400) {
+    console.error(`Failed to parse network error`, parsedError)
+    throw new UnknownError(`Network request failed with an unknown error: ${response.status} ${response.statusText}`)
+  }
+
   const parsedEntity: T = await schema.parseAsync(json).catch((err: unknown) => {
     throw new ParseError({ entity: 'responseJson', isUserError: false }, err)
   })

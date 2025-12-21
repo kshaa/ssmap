@@ -1,11 +1,12 @@
 import { ErrorNames } from "./errorNames"
 
-const serializeError = (name: ErrorNames, message: string, cause: unknown, info?: Record<string, any>) => {
+const serializeError = (name: ErrorNames, message: string, cause: unknown, info?: Record<string, any>, code?: number) => {
   return JSON.stringify({
     message,
     cause,
     info,
-    name
+    name,
+    code
   })
 }
 
@@ -27,10 +28,10 @@ export class BaseError extends Error {
     const cause = this.cause
       ? this.cause instanceof Error && 'serialize' in this.cause && typeof this.cause.serialize === 'function'
         ? this.cause.serialize()
-        : serializeError(ErrorNames.ObfuscatedError, 'Unhandled server error', undefined, { hidden: true })
+        : serializeError(ErrorNames.ObfuscatedError, 'Unhandled server error', undefined, { hidden: true }, 500)
       : undefined
 
-    return serializeError(this.name, this.message, cause, this.info)
+    return serializeError(this.name, this.message, cause, this.info, this.code)
   }
 }
 

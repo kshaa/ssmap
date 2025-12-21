@@ -114,6 +114,14 @@ module.exports = {
       // We are waiting for https://github.com/facebookincubator/create-react-app/issues/2176.
       // { parser: { requireEnsure: false } },
 
+      // Fix for react-router ESM modules requiring fully specified paths
+      {
+        test: /\.m?js$/,
+        resolve: {
+          fullySpecified: false,
+        },
+      },
+
       // Linting is now handled by ESLintPlugin below
       {
         // "oneOf" will traverse all following loaders until one will
@@ -193,16 +201,6 @@ module.exports = {
                   },
                 },
               },
-            ],
-          },
-          // Load sass & scss
-          {
-            test: /\.s(a|c)ss$/,
-            include: paths.appSrc,
-            use: [
-              require.resolve('style-loader'),
-              require.resolve('css-loader'),
-              require.resolve('sass-loader'),
             ],
           },
           // "file" loader makes sure those assets get served by WebpackDevServer.

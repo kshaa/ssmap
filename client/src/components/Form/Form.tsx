@@ -1,44 +1,48 @@
 import React, { useState } from 'react'
-import { useBemClassName } from '@src/hooks/useBemClassName'
-import postData from '@src/services/postData'
-import './Form.scss'
+import styled from 'styled-components'
+import { theme } from '@src/styling/theme'
 
 interface FormProps {
   children?: React.ReactNode
   formAction?: string
   formMethod?: string
   formOnSubmit?: (event: React.FormEvent<HTMLFormElement>) => void
-  skin?: any
+  centered?: boolean
+  withMargin?: boolean
 }
 
-const Form = ({ children, formAction, formMethod, formOnSubmit, skin = {} }: FormProps) => {
-  const [form, setForm] = useState<{ [key: string]: any }>({})
-  const { getSkinnedBlockClass, getSkinnedElementClass } = useBemClassName(skin)
+const StyledForm = styled.form<{ $centered?: boolean; $withMargin?: boolean }>`
+  width: 100%;
+  max-width: ${theme.layout.pageWidthMin};
+  ${props => props.$centered && `
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+  `}
+  ${props => props.$withMargin && `
+    padding: ${theme.spacing.m};
+  `}
+`
 
-  const fieldOnChange = (event: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
-    setForm({
-      ...form,
-      [fieldName]: event.target.value,
-    })
-  }
+const FormContent = styled.div`
+  padding: ${theme.spacing.m};
+  border: 1px solid ${theme.colors.mercury};
+`
 
-  const postFormData = (url: string, data: any) => {
-    return postData(url, data)
-  }
-
+const Form = ({ children, formAction, formMethod, formOnSubmit, centered = false, withMargin = false }: FormProps) => {
   return (
-    <form
+    <StyledForm
       onSubmit={formOnSubmit}
-      className={getSkinnedBlockClass('form')}
+      $centered={centered}
+      $withMargin={withMargin}
       action={formAction}
       method={formMethod}
     >
-      <div className={getSkinnedElementClass('form', 'content', { border: 'light' })}>
+      <FormContent>
         {children}
-      </div>
-    </form>
+      </FormContent>
+    </StyledForm>
   )
 }
 
 export default Form
-export { postData }

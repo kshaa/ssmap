@@ -1,6 +1,6 @@
 import React from 'react'
-import { useBemClassName } from '@src/hooks/useBemClassName'
-import './Field.scss'
+import styled from 'styled-components'
+import { theme, darken } from '@src/styling/theme'
 
 interface FieldProps {
   fieldLabel?: string
@@ -11,8 +11,49 @@ interface FieldProps {
   fieldDisabled?: boolean
   fieldOnChange?: (event: React.ChangeEvent<HTMLInputElement>, fieldName: string) => void
   children?: React.ReactNode
-  skin?: any
+  fullWidth?: boolean
 }
+
+const FieldWrapper = styled.div`
+  display: flex;
+  flex-direction: column-reverse;
+`
+
+const StyledInput = styled.input<{ $fullWidth?: boolean }>`
+  border-width: 0 0 1px;
+  border-color: ${theme.colors.mercury};
+  transition: ${theme.transitions.fast} border-color;
+  height: 40px;
+  outline: none;
+  width: ${props => props.$fullWidth ? '100%' : 'auto'};
+
+  &:hover {
+    border-color: ${darken(theme.colors.mercury, theme.contrast.medium)};
+  }
+
+  &:focus {
+    border-color: ${darken(theme.colors.mercury, theme.contrast.hard)};
+  }
+`
+
+const StyledLabel = styled.label`
+  font-weight: bold;
+
+  &:before {
+    display: inline-block;
+    content: '✤';
+    margin: 0 0 10px;
+    opacity: 0;
+    max-width: 0px;
+    transition: ${theme.transitions.regular};
+  }
+
+  ${StyledInput}:focus + &:before {
+    margin: 0 10px 10px 4px;
+    max-width: 15px;
+    opacity: 1;
+  }
+`
 
 const Field = ({
   fieldLabel,
@@ -23,10 +64,8 @@ const Field = ({
   fieldRequired,
   fieldDisabled,
   fieldOnChange,
-  skin = {},
+  fullWidth = false,
 }: FieldProps) => {
-  const { getSkinnedBlockClass, getSkinnedElementClass } = useBemClassName(skin)
-
   const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (fieldOnChange) {
       fieldOnChange(event, fieldName)
@@ -34,8 +73,8 @@ const Field = ({
   }
 
   const InputElement = (
-    <input
-      className={getSkinnedBlockClass(fieldType)}
+    <StyledInput
+      $fullWidth={fullWidth}
       type={fieldType}
       name={fieldName}
       value={fieldValue}
@@ -44,17 +83,17 @@ const Field = ({
       onChange={onChangeHandler}
     >
       {children}
-    </input>
+    </StyledInput>
   )
 
   if (fieldLabel) {
     return (
-      <div className={getSkinnedElementClass(fieldType, 'wrapper')}>
+      <FieldWrapper>
         {InputElement}
-        <label htmlFor={fieldName} className={getSkinnedElementClass(fieldType, 'label')}>
+        <StyledLabel htmlFor={fieldName}>
           {fieldLabel}
-        </label>
-      </div>
+        </StyledLabel>
+      </FieldWrapper>
     )
   } else {
     return InputElement

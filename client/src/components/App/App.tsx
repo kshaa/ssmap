@@ -1,125 +1,133 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { useBemClassName } from '@src/hooks/useBemClassName'
-import Body from '@src/components/Body/Body'
+import styled from 'styled-components'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { theme, darken } from '@src/styling/theme'
+import { GlobalStyles } from '@src/styling/GlobalStyles'
 import PostForm from '@src/components/PostForm/PostForm'
 import PostList from '@src/components/PostList/PostList'
 import PostMap from '@src/components/PostMap/PostMap'
-import './App.scss'
-import { ParsedPostWithUrl, Coordinates } from '@shared/post'
-import { PostWithUI, PostListType } from '@src/components/PostList/PostList'
+import { useOrientation } from '@src/hooks/useOrientation'
+import { useErrorNotifications } from '@src/hooks/useErrorNotifications'
+import { useThingManagement } from '@src/hooks/useThingManagement'
+import { useProjectManagement } from '@src/hooks/useProjectManagement'
+import CreateProjectForm from '../ProjectForm/ProjectForm'
 
-const latviaZoom = 7
-const latviaCoordinates: Coordinates = { lat: 56.8796, lng: 24.6032 }
+const AppContainer = styled.div<{ $isHorizontal?: boolean }>`
+  ${props => props.$isHorizontal && `
+    /* Horizontal layout specific styles can go here if needed */
+  `}
+`
+
+const ErrorContainer = styled.div`
+  margin: 20px auto;
+  position: absolute;
+  right: 0;
+  left: 0;
+  width: 100%;
+  max-width: ${theme.layout.pageWidthMin};
+  z-index: 2;
+`
+
+const Error = styled.div`
+  margin-top: ${theme.spacing.m};
+  opacity: 0.9;
+  background: ${theme.colors.pink};
+  border-color: ${darken(theme.colors.pink, theme.contrast.hard)};
+  border-width: 1px;
+  border-radius: 3px;
+  border-style: solid;
+`
+
+const ErrorText = styled.p`
+  margin: 20px 10px;
+  color: ${theme.colors.monza};
+`
+
+const ErrorIcon = styled.span`
+  display: inline-block;
+  margin: 0 25px 0 15px;
+  font-size: 22px;
+  color: ${theme.colors.monza};
+  transform: scale(2);
+`
+
+const InfoWrapper = styled.div<{ $isHorizontal?: boolean }>`
+  ${props => props.$isHorizontal && `
+    display: flex;
+    justify-content: row;
+    flex-grow: 1;
+  `}
+`
+
+const StyledBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-height: 100vh;
+`
 
 const App = () => {
-  const [postList, setPostList] = useState<PostListType>({})
-  const [errorList, setErrorList] = useState<string[]>([])
-  const [mapCenterCoordinates] = useState<Coordinates>(latviaCoordinates)
-  const [mapZoom, setMapZoom] = useState<number>(latviaZoom)
-  const [focusedPost, setFocusedPost] = useState<PostWithUI | null>(null)
-  const [isLandscape, setIsLandscape] = useState<boolean>(true)
-  const { getSkinnedBlockClass, getSkinnedElementClass } = useBemClassName()
-
-  const recheckLandscape = useCallback(() => {
-    const landscape = window.innerWidth > window.innerHeight
-    setIsLandscape(landscape)
-  }, [])
-
-  useEffect(() => {
-    recheckLandscape()
-    window.addEventListener('resize', recheckLandscape)
-    return () => {
-      window.removeEventListener('resize', recheckLandscape)
-    }
-  }, [recheckLandscape])
-
-  const removeError = useCallback((removableErrorMessage: string) => {
-    setErrorList(prevErrors =>
-      prevErrors.filter(errorMessage => errorMessage !== removableErrorMessage)
-    )
-  }, [])
-
-  const addErrorMessage = (errorMessage: string) => {
-    setErrorList(prevErrors => [...prevErrors, errorMessage])
-    setTimeout(() => {
-      removeError(errorMessage)
-    }, 4000)
-  }
-
-  const appendPosts = (posts: ParsedPostWithUrl[]) => {
-    const fondledPosts: PostListType = Object.fromEntries(posts.map(post => [
-      [post.url], {
-        ...post,
-        isOpen: true,
-      },
-    ]))
-    setPostList(prevList => ({
-      ...prevList,
-      ...fondledPosts,
-    }))
-    const firstValidCoordinatePost = Object.values(fondledPosts).find(post => post.data.addressInfo?.coordinates?.lat && post.data.addressInfo?.coordinates?.lng)
-    if (firstValidCoordinatePost) setFocusedPost(firstValidCoordinatePost)
-    setMapZoom(13)
-  }
-
-  const removePost = (removablePost: PostWithUI) => {
-    return () => {
-      if (removablePost.url) {
-        setPostList(prevList => {
-          const newPostList = { ...prevList }
-          delete newPostList[removablePost.url!]
-          return newPostList
-        })
-        setFocusedPost(null)
-        setMapZoom(8)
-      }
-    }
-  }
-
-  const focusPost = (post: PostWithUI) => {
-    return () => {
-      const focusedPost: PostWithUI = {
-        ...post,
-      }
-      setFocusedPost(focusedPost)
-      setMapZoom(13)
-    }
-  }
-
-  const landscapeClass = isLandscape ? 'horizontal' : 'vertical'
+  const isLandscape = useOrientation()
+  const { errorList, addErrorMessage } = useErrorNotifications()
+  const projectManagement = useProjectManagement()
+  const {
+    projectWithContent,
+    mapCenterCoordinates,
+    mapZoom,
+    focusedPost,
+    appendPosts,
+    focusPost,
+  } = useThingManagement(projectManagement)
 
   return (
-    <div className={getSkinnedBlockClass('app', {}, { [landscapeClass]: true })}>
-      <div className={getSkinnedElementClass('error', 'container')}>
-        {errorList.length > 0 &&
-          errorList.map((errorMessage, index) => (
-            <div key={index} className={getSkinnedBlockClass('error')}>
-              <p className={getSkinnedElementClass('error', 'text')}>
-                <span className={getSkinnedElementClass('error', 'icon')}>{'⚠'}</span>
-                {errorMessage}
-              </p>
-            </div>
-          ))}
-      </div>
-      <Body className={getSkinnedBlockClass('body')}>
-        <PostForm addErrorMessage={addErrorMessage} appendPosts={appendPosts} />
-        <div className={getSkinnedBlockClass('info-wrapper', { [landscapeClass]: true })}>
-          <PostList
-            postList={postList}
-            skin={{ [landscapeClass]: true }}
-            focusPost={focusPost}
-            removePost={removePost}
-          />
-          <PostMap
-            postList={postList}
-            defaultCenter={mapCenterCoordinates}
-            defaultZoom={mapZoom}
-            focusedPost={focusedPost}
-            skin={{ [landscapeClass]: true }}
-          />
-        </div>
-      </Body>
-    </div>
+    <>
+      <GlobalStyles />
+      <AppContainer $isHorizontal={isLandscape}>
+        <ErrorContainer>
+          {errorList.length > 0 &&
+            errorList.map((errorMessage, index) => (
+              <Error key={index}>
+                <ErrorText>
+                  <ErrorIcon>{'⚠'}</ErrorIcon>
+                  {errorMessage}
+                </ErrorText>
+              </Error>
+            ))}
+        </ErrorContainer>
+        <StyledBody>
+          <Routes>
+            <Route path="/" element={
+              !projectManagement.selectedProjectId ? (
+                <CreateProjectForm projectManagement={projectManagement} addErrorMessage={addErrorMessage} />
+              ) : (
+                <Navigate to={`/project/${projectManagement.selectedProjectId}`} replace />
+              )
+            } />
+            <Route path="/project/:projectId" element={
+              !projectManagement.selectedProjectId ? (<Navigate to="/" replace />) : 
+              <>
+                {projectManagement.selectedProjectId && (
+                  <PostForm projectId={projectManagement.selectedProjectId} addErrorMessage={addErrorMessage} appendPosts={appendPosts} />
+                )}
+                <InfoWrapper $isHorizontal={isLandscape}>
+                  <PostList
+                    postList={projectWithContent?.posts ?? []}
+                    isHorizontal={isLandscape}
+                    focusPost={focusPost}
+                  />
+                  <PostMap
+                    postList={projectWithContent?.posts ?? []}
+                    defaultCenter={mapCenterCoordinates}
+                    defaultZoom={mapZoom}
+                    focusedPost={focusedPost}
+                    isHorizontal={isLandscape}
+                  />
+                </InfoWrapper>
+              </>
+            } />
+          </Routes>
+        </StyledBody>
+      </AppContainer>
+    </>
   )
 }
 

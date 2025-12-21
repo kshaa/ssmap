@@ -4,6 +4,7 @@ import { ProjectPostFeeling } from "@shared/projectPostFeeling"
 import { DatabaseService } from "../database/initDatabase"
 import { CrudMetadata } from "@shared/crudMetadata"
 import { SSSynchronizerService } from "./ssSynchronizerService"
+import { NotFoundError } from "@shared/errors/notFoundError"
 
 export interface SSProjectService {
   upsertProject: (project: Project) => Promise<Project & CrudMetadata>
@@ -31,7 +32,7 @@ const upsertProject = async (state: State, project: Project): Promise<Project & 
 const getProject = async (state: State, id: string): Promise<ProjectWithContentAndMetadata> => {
   const project = await state.database.tables.project.get(id)
   if (!project) {
-    throw new Error('Project not found')
+    throw new NotFoundError({ entity: 'Project', id })
   }
   const projectPosts = await state.database.tables.projectPost.getAll(id)
   const projectFeeds = await state.database.tables.projectFeed.getAll(id)
