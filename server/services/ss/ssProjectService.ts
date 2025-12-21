@@ -46,9 +46,9 @@ const getProject = async (state: State, id: string): Promise<ProjectWithContentA
 const addThing = async (state: State, projectId: string, thingUrl: string): Promise<PostThingSync | FeedAndPostThingSync> => {
   const thing = await state.syncService.syncSsUrl(thingUrl, true)
   if (thing.kind === ThingKind.Post) {
-    await state.database.tables.projectPost.upsert(projectId, thingUrl)
+    await state.database.tables.projectPost.upsert(projectId, thing.data.url)
   } else if (thing.kind === ThingKind.FeedAndPosts) {
-    await state.database.tables.projectFeed.upsert(projectId, thingUrl)
+    await state.database.tables.projectFeed.upsert(projectId, thing.data.feed.url)
   } else {
     throw new Error(`Invalid thing kind ${thing.kind}`)
   }

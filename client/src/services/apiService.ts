@@ -4,6 +4,7 @@ import { parseAppError } from '@shared/errors/base'
 import { z } from 'zod'
 import { Project, projectSchema, ProjectWithContentAndMetadata, projectWithContentAndMetadataSchema } from '@shared/project'
 import { FeedAndPostThingSync, feedAndPostThingSyncSchema, PostThingSync, postThingSyncSchema } from '@shared/synchronizedThing'
+import { ProjectPostFeeling } from '@shared/projectPostFeeling'
 
 const parseFetchJson = async <T>(fetchPromise: Promise<Response>, schema: z.ZodSchema<T>): Promise<T> => {
   const response = await fetchPromise.catch(err => {
@@ -62,4 +63,16 @@ export const fetchProjectGetThings = async (projectId: string): Promise<ProjectW
   })
   const schema = projectWithContentAndMetadataSchema
   return await parseFetchJson<ProjectWithContentAndMetadata>(fetchPromise, schema)
+}
+
+export const fetchProjectRateThing = async (projectId: string, postUrl: string, rating: ProjectPostFeeling): Promise<void> => {
+  const fetchPromise = fetch(`/api/project/${projectId}/thing/rating`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ postUrl, rating }),
+  })
+  const schema = z.void()
+  return await parseFetchJson<void>(fetchPromise, schema)
 }

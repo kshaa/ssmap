@@ -4,6 +4,7 @@ import { FeedAndPostThingSync, PostThingSync, ThingKind } from '@shared/synchron
 import { ProjectWithContentAndMetadata } from '@shared/project'
 import { ProjectManagement } from './useProjectManagement'
 import { fetchProjectGetThings } from '@src/services/apiService'
+import { ProjectPostFeeling } from '@shared/projectPostFeeling'
 
 const latviaZoom = 7
 const latviaCoordinates: Coordinates = { lat: 56.8796, lng: 24.6032 }
@@ -64,6 +65,14 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
     }
   }, [])
 
+  // const ratePost = useCallback((post: ParsedPostWithUrl, rating: ProjectPostFeeling) => {
+  //   if (!projectWithContent) {
+  //     console.error('Base project missing, cannot rate post')
+  //     return
+  //   }
+  //   fetchProjectRatePost(projectManagement.selectedProjectId, post.url, rating)
+  // }, [projectWithContent, projectManagement.selectedProjectId])
+
   useEffect(() => {
     console.log('Loading project data for selectedProjectId', projectManagement.selectedProjectId)
     if (!projectManagement.selectedProjectId) {
@@ -72,7 +81,7 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
       return
     }
     fetchProjectGetThings(projectManagement.selectedProjectId).then(projectData => {
-      console.log('Project data loaded, name: ', projectData.project.name, 'id: ', projectData.project.id)
+      console.log(`Project data loaded, name: ${projectData.project.name}, id: ${projectData.project.id}, posts: ${projectData.posts.length}`)
       setProjectWithContent(projectData)
     }).catch(error => {
       console.error('Failed to load project', error)
