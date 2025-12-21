@@ -104,9 +104,9 @@ const syncSsUrl = async (state: State, url: string, isDeepSearch: boolean): Prom
     case ThingKind.FeedAndPosts:
       return { kind: ThingKind.FeedAndPosts, data: await syncFeedAndPosts(state, urlText, false) }
     case ThingKind.ListingPage:
-      return { kind: ThingKind.ListingPage, data: await syncFeed(state, urlText, true) }
+      return { kind: ThingKind.Feed, data: await syncFeed(state, urlText, true) }
     case ThingKind.ListingPageAndPosts:
-      return { kind: ThingKind.ListingPageAndPosts, data: await syncFeedAndPosts(state, urlText, true) }
+      return { kind: ThingKind.FeedAndPosts, data: await syncFeedAndPosts(state, urlText, true) }
   }
 }
 

@@ -47,9 +47,9 @@ export const feedThingSyncSchema = z.object({
 export const feedAndPostThingSyncSchema = z.object({
   kind: z.literal(ThingKind.FeedAndPosts).or(z.literal(ThingKind.ListingPageAndPosts)),
   data: z.object({
-    feed: parsedFeedWithUrlSchema.and(crudMetadataSchema).and(withStalenessSchema),
-    posts: parsedPostWithUrlSchema.and(crudMetadataSchema).and(withStalenessSchema).array(),
-    feedPosts: feedPostSchema.and(crudMetadataSchema).and(withStalenessSchema).array(),
+    feed: parsedFeedWithUrlSchema.and(crudMetadataSchema),
+    posts: parsedPostWithUrlSchema.and(crudMetadataSchema).array(),
+    feedPosts: feedPostSchema.and(crudMetadataSchema).array(),
   }),
 })
 
