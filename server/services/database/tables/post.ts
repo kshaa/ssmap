@@ -5,6 +5,7 @@ import { UnderlyingDatabase } from '@src/services/database/initDatabase'
 export interface PostTable {
   upsert: (url: string, post: ParsedPost) => Promise<ParsedPostWithUrl & CrudMetadata>
   get: (url: string) => Promise<ParsedPostWithUrl & CrudMetadata | null>
+  getAll: () => Promise<(ParsedPostWithUrl & CrudMetadata)[]>
 }
 
 const upsert = async (underlying: UnderlyingDatabase, url: string, post: ParsedPost) => {
@@ -39,10 +40,21 @@ const get = async (underlying: UnderlyingDatabase, url: string) => {
   }
 }
 
+const getAll = async (underlying: UnderlyingDatabase): Promise<(ParsedPostWithUrl & CrudMetadata)[]> => {
+  const result = await underlying.db.all<{ url: string; data: string; created_at: number; updated_at: number }[]>(`SELECT * FROM post`)
+  return result.map(result => ({
+    url: String(result.url),
+    data: JSON.parse(result.data),
+    createdAt: result.created_at,
+    updatedAt: result.updated_at,
+  }))
+}
+
 export const createPostTable = (underlying: UnderlyingDatabase): PostTable => {
   // Partially applied, curried functions
   return {
     upsert: upsert.bind(null, underlying),
     get: get.bind(null, underlying),
+    getAll: getAll.bind(null, underlying),
   }
 }

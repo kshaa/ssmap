@@ -3,7 +3,7 @@ import { ParsedFeedWithUrl } from "@shared/feed"
 import { getUniqueUrl, SSFetcherService } from "./ssFetcherService"
 import { DatabaseService } from "../database/initDatabase"
 import PQueue from "p-queue"
-import { MIN_FEED_TTL_SECONDS, MIN_POST_TTL_SECONDS } from "./common"
+import { MIN_FEED_TTL_SECONDS, MIN_POST_TTL_SECONDS, SYNC_INTERVAL_SECONDS } from "./common"
 import { CrudMetadata } from "@shared/crudMetadata"
 import { PostSync, FeedSync, FeedAndPostsSync, ThingSync, WithStaleness, ThingKind, Staleness } from "@shared/synchronizedThing"
 import { logger } from "../logging/logger"
@@ -130,4 +130,34 @@ export const buildSsSynchronizerService = (database: DatabaseService, fetcher: S
     syncFeedAndPosts: syncFeedAndPosts.bind(null, state),
     syncSsUrl: syncSsUrl.bind(null, state),
   }
+}
+
+const syncAllFeedsAndPosts = async (database: DatabaseService, ssSynchronizer: SSSynchronizerService): Promise<void> => {
+  logger.info('Running SS Synchronizer Job')
+
+  // Synchronizing feeds
+  const feeds = await database.tables.feed.getAll()
+  for (const feed of feeds) {
+    await ssSynchronizer.syncFeed(feed.url, feed.isListingPage).catch((err) => {
+      logger.error(`Failed to sync feed ${feed.url}`, err)
+    })
+  }
+
+  // Synchronizing posts
+  const posts = await database.tables.post.getAll()
+  for (const post of posts) {
+    await ssSynchronizer.syncPost(post.url).catch((err) => {
+      logger.error(`Failed to sync post ${post.url}`, err)
+    })
+  }
+
+  logger.info('SS Synchronizer Job completed')
+}
+
+export const runSsSynchronizerJob = (database: DatabaseService, ssSynchronizer: SSSynchronizerService): void => {
+  const queue = new PQueue({ concurrency: 1 })
+  queue.add(() => syncAllFeedsAndPosts(database, ssSynchronizer))
+  setInterval(() => {
+    queue.add(() => syncAllFeedsAndPosts(database, ssSynchronizer))
+  }, SYNC_INTERVAL_SECONDS * 1000)
 }

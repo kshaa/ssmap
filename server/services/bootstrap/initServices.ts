@@ -1,7 +1,7 @@
 import { Config } from '@src/services/config/getConfig'
 import { DatabaseService, initDatabase } from '../database/initDatabase'
 import { buildSsFetcherService, SSFetcherService } from '../ss/ssFetcherService'
-import { buildSsSynchronizerService, SSSynchronizerService } from '../ss/ssSynchronizerService'
+import { buildSsSynchronizerService, runSsSynchronizerJob, SSSynchronizerService } from '../ss/ssSynchronizerService'
 import { logger } from '../logging/logger'
 import { buildSsProjectService, SSProjectService } from '../ss/ssProjectService'
 
@@ -26,6 +26,9 @@ export const initServices = async (config: Config): Promise<Services> => {
 
   logger.info('Initializing SS Project Service')
   const ssProjectService = buildSsProjectService(database, ssSynchronizer)
+  
+  logger.info('Running SS Synchronizer Job')
+  runSsSynchronizerJob(database, ssSynchronizer)
 
   logger.info('Services initialized')
   return {

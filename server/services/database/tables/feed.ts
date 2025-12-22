@@ -5,6 +5,7 @@ import { UnderlyingDatabase } from '@src/services/database/initDatabase'
 export interface FeedTable {
   upsert: (url: string, feed: ParsedFeed, isListingPage: boolean) => Promise<ParsedFeedWithUrl & CrudMetadata>
   get: (url: string) => Promise<ParsedFeedWithUrl & CrudMetadata | null>
+  getAll: () => Promise<(ParsedFeedWithUrl & CrudMetadata)[]>
 }
 
 const upsert = async (underlying: UnderlyingDatabase, url: string, feed: ParsedFeed, isListingPage: boolean): Promise<ParsedFeedWithUrl & CrudMetadata> => {
@@ -48,10 +49,22 @@ const get = async (underlying: UnderlyingDatabase, url: string): Promise<ParsedF
   }
 }
 
+const getAll = async (underlying: UnderlyingDatabase): Promise<(ParsedFeedWithUrl & CrudMetadata)[]> => {
+  const result = await underlying.db.all<{ url: string; data: string; is_listing_page: boolean; created_at: number; updated_at: number }[]>(`SELECT * FROM feed`)
+  return result.map(result => ({
+    url: String(result.url),
+    data: JSON.parse(result.data),
+    isListingPage: Boolean(result.is_listing_page),
+    createdAt: result.created_at,
+    updatedAt: result.updated_at,
+  }))
+}
+
 export const createFeedTable = (underlying: UnderlyingDatabase): FeedTable => {
   // Partially applied, curried functions
   return {
     upsert: upsert.bind(null, underlying),
     get: get.bind(null, underlying),
+    getAll: getAll.bind(null, underlying),
   }
 }
