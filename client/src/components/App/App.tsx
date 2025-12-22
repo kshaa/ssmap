@@ -28,7 +28,7 @@ const ErrorContainer = styled.div`
   left: 0;
   width: 100%;
   max-width: ${theme.layout.pageWidthMin};
-  z-index: 2;
+  z-index: 3;
 `
 
 const Error = styled.div`

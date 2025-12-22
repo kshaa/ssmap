@@ -17,7 +17,7 @@ const SidebarContainer = styled.div<{ isLandscape: boolean, isOpen: boolean }>`
   ` : `
     position: absolute;
     background: white;
-    z-index: 50;
+    z-index: 2;
     width: 100%;
     top: ${HEADER_HEIGHT};
     ${props.isOpen ? `

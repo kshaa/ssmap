@@ -14,7 +14,7 @@ export interface SSFetcherService {
   fetchParsedListingPage: (url: string) => Promise<ParsedFeedWithUrl>
 }
 
-const isHostnameSS = (hostname: string): boolean => Boolean(hostname.match(/^(www\.)?ss\.lv$/))
+const isHostnameSS = (hostname: string): boolean => Boolean(hostname.match(/^(www\.|m\.)?ss\.(lv|com)$/))
 
 export const getUniqueUrl = (url: string): { urlText: string, url: URL } => {
   let parsedUrl: URL
@@ -24,7 +24,8 @@ export const getUniqueUrl = (url: string): { urlText: string, url: URL } => {
   } catch (err) {
     throw new ParseError({ entity: 'url', isUserError: true }, err)
   }
-  let uniqueUrl = parsedUrl.origin + parsedUrl.pathname
+  let normalizedOrigin = parsedUrl.origin.replace('m.', '').replace('.com', '.lv')
+  let uniqueUrl = normalizedOrigin + parsedUrl.pathname
   return { urlText: uniqueUrl, url: parsedUrl }
 }
 
