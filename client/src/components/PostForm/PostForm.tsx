@@ -44,8 +44,9 @@ const PostForm = ({ projectId, addErrorMessage, appendPosts }: PostFormProps) =>
       withMargin={true}
     >
       <Field
-        fieldLabel="SS.lv sludinājuma saite"
+        fieldLabel="Pievienot sludinājumu"
         fieldType="text"
+        fieldPlaceholder="SS.lv sludinājuma saite"
         fieldName="url"
         fieldValue={formData.url}
         fieldOnChange={fieldOnChange}

@@ -14,8 +14,6 @@ interface PostListProps {
 
 const PostListContainer = styled.div<{ $isHorizontal?: boolean }>`
   ${props => props.$isHorizontal ? `
-    min-width: ${theme.layout.sidebarWidth};
-    max-width: ${theme.layout.sidebarWidth};
     height: calc(100vh - 150px);
   ` : `
     display: block;
@@ -26,29 +24,23 @@ const PostListContainer = styled.div<{ $isHorizontal?: boolean }>`
   `}
 `
 
-const PostListTitle = styled.div<{ $isHorizontal?: boolean }>`
-  ${props => props.$isHorizontal ? `
-    display: inline-block;
-    padding: ${theme.spacing.m};
-    border-width: 1px 0 1px;
-    border-color: ${theme.colors.mercury};
-    border-style: solid;
-    min-width: 100%;
-  ` : `
-    display: none;
-  `}
-`
+// const PostListTitle = styled.div<{ $isHorizontal?: boolean }>`
+//   ${props => props.$isHorizontal ? `
+//     display: inline-block;
+//     padding: ${theme.spacing.m};
+//     border-width: 1px 0 1px;
+//     border-color: ${theme.colors.mercury};
+//     border-style: solid;
+//     min-width: 100%;
+//   ` : `
+//     display: none;
+//   `}
+// `
 
 const PostListContent = styled.div<{ $isHorizontal?: boolean }>`
   padding: ${theme.spacing.m};
   display: block;
   width: 100%;
-
-  ${props => props.$isHorizontal && `
-    max-height: calc(100% - 61px);
-    min-height: calc(100% - 61px);
-    overflow-y: scroll;
-  `}
 `
 
 const Post = styled.div<{ $isSeen?: boolean, $isFaulty?: boolean }>`
@@ -183,9 +175,6 @@ const PostList = ({ postList, postRatings, ratePost, focusPost, isHorizontal = f
 
   return (
     <PostListContainer $isHorizontal={isHorizontal}>
-      <PostListTitle $isHorizontal={isHorizontal}>
-        <strong>{'Sludinājumi'}</strong>
-      </PostListTitle>
       <PostListContent $isHorizontal={isHorizontal}>
         {posts.length === 0 && (
           <div>

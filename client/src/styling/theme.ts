@@ -38,7 +38,7 @@ export const theme = {
   layout: {
     pageWidthMin: '600px',
     pageWidthMax: '800px',
-    sidebarWidth: '350px',
+    sidebarWidth: '375px',
   },
 
   // Typography

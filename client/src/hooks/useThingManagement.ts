@@ -123,3 +123,4 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
   }
 }
 
+export type ThingManagement = ReturnType<typeof useThingManagement>

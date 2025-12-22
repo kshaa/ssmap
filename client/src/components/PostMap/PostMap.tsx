@@ -5,6 +5,9 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { Coordinates, ParsedPostWithUrl } from '@shared/post'
 import { ProjectPostFeeling } from '@shared/projectPostFeeling'
+import { ThingManagement } from '@src/hooks/useThingManagement'
+import { HEADER_HEIGHT } from '../Header/Header'
+import { theme } from '@src/styling/theme'
 
 // Fix for default marker icon in Leaflet with Webpack
 const markerIcon2x = require('leaflet/dist/images/marker-icon-2x.png').default
@@ -19,27 +22,20 @@ L.Icon.Default.mergeOptions({
 })
 
 interface PostMapProps {
-  postList: ParsedPostWithUrl[]
-  postRatings: Record<string, Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>>
-  ratePost: (post: ParsedPostWithUrl, rating: Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>) => void
-  defaultCenter: Coordinates
-  defaultZoom: number
-  focusedPost: ParsedPostWithUrl | null
+  thingManagement: ThingManagement
+  isSidebarOpen: boolean
   isHorizontal?: boolean
 }
 
 const GoogleMapsWrapper = styled.div`
   height: 100%;
-  width: 100%;
+  width: calc(100% - ${theme.layout.sidebarWidth});
+  flex-grow: 1;
 `
 
 const MapWrapper = styled.div<{ $isHorizontal?: boolean }>`
-  height: 400px !important;
+  height: calc(100vh - ${HEADER_HEIGHT}) !important;
   width: 100%;
-
-  ${props => props.$isHorizontal && `
-    height: calc(100vh - 150px) !important;
-  `}
 
   .leaflet-container {
     height: 100% !important;
@@ -104,14 +100,14 @@ const Star = styled.span<{ isSelected?: boolean }>`
 `
 
 const PostMap = ({
-  postList,
-  postRatings,
-  ratePost,
-  defaultCenter,
-  defaultZoom,
-  focusedPost,
+  thingManagement,
+  isSidebarOpen,
   isHorizontal = false,
 }: PostMapProps) => {
+  const { focusedPost, mapZoom: defaultZoom, mapCenterCoordinates, postRatings, ratePost, projectWithContent } = thingManagement
+  const postList = projectWithContent?.posts ?? []
+  const defaultCenter = mapCenterCoordinates
+
   const mapRef = useRef<L.Map | null>(null)
 
   // Update map center when focusedPost changes
@@ -122,7 +118,14 @@ const PostMap = ({
         defaultZoom
       )
     }
-  }, [focusedPost, defaultZoom])
+  }, [focusedPost, defaultZoom, isHorizontal])
+
+  // If sidebar is toggled, update map to avoid gray spots on the sides
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.invalidateSize()
+    }
+  }, [isSidebarOpen])
 
   const renderAttribute = (attribute: string, value: string | React.ReactNode) => {
     return (

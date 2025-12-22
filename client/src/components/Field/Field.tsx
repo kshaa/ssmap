@@ -4,6 +4,7 @@ import { theme, darken } from '@src/styling/theme'
 
 interface FieldProps {
   fieldLabel?: string
+  fieldPlaceholder?: string
   fieldType: string
   fieldName: string
   fieldValue?: string
@@ -57,6 +58,7 @@ const StyledLabel = styled.label`
 
 const Field = ({
   fieldLabel,
+  fieldPlaceholder,
   children,
   fieldType,
   fieldName,
@@ -75,6 +77,7 @@ const Field = ({
   const InputElement = (
     <StyledInput
       $fullWidth={fullWidth}
+      placeholder={fieldPlaceholder}
       type={fieldType}
       name={fieldName}
       value={fieldValue}

@@ -10,6 +10,10 @@ import { useErrorNotifications } from '@src/hooks/useErrorNotifications'
 import { useThingManagement } from '@src/hooks/useThingManagement'
 import { useProjectManagement } from '@src/hooks/useProjectManagement'
 import CreateProjectForm from '../ProjectForm/ProjectForm'
+import Header, { HEADER_HEIGHT } from '../Header/Header'
+import { Sidebar } from '../Sidebar/Sidebar'
+import { PostManagement } from '../PostManagement/PostManagement'
+import { useEffect, useState } from 'react'
 
 const AppContainer = styled.div<{ $isHorizontal?: boolean }>`
   ${props => props.$isHorizontal && `
@@ -65,20 +69,66 @@ const StyledBody = styled.div`
   max-height: 100vh;
 `
 
+const ContentContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  max-height: calc(100vh - ${HEADER_HEIGHT});
+`
+
+const ProjectPage = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 350px;
+  margin: 0 auto;
+`
+
+const ProjectSelection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+  width: 100%;
+  max-width: 350px;
+  padding: 10px;
+`
+
+const ProjectSelectionItem = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid ${theme.colors.mercury};
+`
+
+const ProjectPicker = styled.div`
+  cursor: pointer;
+  text-decoration: underline;
+`
+
 const App = () => {
   const isLandscape = useOrientation()
   const { errorList, addErrorMessage } = useErrorNotifications()
   const projectManagement = useProjectManagement()
-  const {
-    projectWithContent,
-    mapCenterCoordinates,
-    mapZoom,
-    focusedPost,
-    appendPosts,
-    focusPost,
-    ratePost,
-    postRatings,
-  } = useThingManagement(projectManagement)
+  const thingManagement = useThingManagement(projectManagement)
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(isLandscape)
+
+  useEffect(() => {
+    setIsSidebarOpen(isLandscape)
+  }, [isLandscape])
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen)
+  }
+
+  const handleProjectPicker = () => {
+    projectManagement.setSelectedProjectId(null)
+  }
 
   return (
     <>
@@ -99,7 +149,18 @@ const App = () => {
           <Routes>
             <Route path="/" element={
               !projectManagement.selectedProjectId ? (
-                <CreateProjectForm projectManagement={projectManagement} addErrorMessage={addErrorMessage} />
+                <ProjectPage>
+                  <Header isBig={true}>
+                    <CreateProjectForm projectManagement={projectManagement} addErrorMessage={addErrorMessage} />
+                  </Header>
+                  <ProjectSelection>
+                    {projectManagement.projects.map((project) => (
+                      <ProjectSelectionItem onClick={() => projectManagement.setSelectedProjectId(project.id)} key={project.id}>
+                        {project.name}
+                      </ProjectSelectionItem>
+                    ))}
+                  </ProjectSelection>
+                </ProjectPage>
               ) : (
                 <Navigate to={`/project/${projectManagement.selectedProjectId}`} replace />
               )
@@ -107,27 +168,21 @@ const App = () => {
             <Route path="/project/:projectId" element={
               !projectManagement.selectedProjectId ? (<Navigate to="/" replace />) : 
               <>
-                {projectManagement.selectedProjectId && (
-                  <PostForm projectId={projectManagement.selectedProjectId} addErrorMessage={addErrorMessage} appendPosts={appendPosts} />
-                )}
-                <InfoWrapper $isHorizontal={isLandscape}>
-                  <PostList
-                    postList={projectWithContent?.posts ?? []}
-                    postRatings={postRatings}
-                    ratePost={ratePost}
-                    isHorizontal={isLandscape}
-                    focusPost={focusPost}
-                  />
+                <Header>
+                  <button onClick={toggleSidebar}>☰</button>
+                  <h4>{projectManagement.selectedProject?.name}</h4>
+                  <ProjectPicker onClick={handleProjectPicker}>Mainīt projektu</ProjectPicker>
+                </Header>
+                <ContentContainer>
+                  <Sidebar isLandscape={isLandscape} isOpen={isSidebarOpen}>
+                    <PostManagement thingManagement={thingManagement} isLandscape={isLandscape} selectedProjectId={projectManagement.selectedProjectId} addErrorMessage={addErrorMessage} />
+                  </Sidebar>
                   <PostMap
-                    postList={projectWithContent?.posts ?? []}
-                    postRatings={postRatings}
-                    ratePost={ratePost}
-                    defaultCenter={mapCenterCoordinates}
-                    defaultZoom={mapZoom}
-                    focusedPost={focusedPost}
+                    thingManagement={thingManagement}
                     isHorizontal={isLandscape}
+                    isSidebarOpen={isSidebarOpen}
                   />
-                </InfoWrapper>
+                </ContentContainer>  
               </>
             } />
           </Routes>

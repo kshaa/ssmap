@@ -32,9 +32,11 @@ export const useProjectManagement = () => {
   const location = useLocation()
   const [projects, setProjects] = useState<{ id: string, name: string }[]>(getPersistedProjects())
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
   const setSelectedProjectIdWithPersistence = useCallback((projectId: string | null) => {
     setSelectedProjectId(projectId)
+    setSelectedProject(projects.find(project => project.id === projectId) ?? null)
     setPersistedSelectedProjectId(projectId)
   }, [setPersistedSelectedProjectId])
 
@@ -64,6 +66,7 @@ export const useProjectManagement = () => {
   return {
     projects,
     selectedProjectId,
+    selectedProject,
     setSelectedProjectId: setSelectedProjectIdWithPersistence,
     createProject,
   }
