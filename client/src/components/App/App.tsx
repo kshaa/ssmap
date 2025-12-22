@@ -162,11 +162,11 @@ const App = () => {
                   </ProjectSelection>
                 </ProjectPage>
               ) : (
-                <Navigate to={`/project/${projectManagement.selectedProjectId}`} replace />
+                <Navigate to={`/project/${projectManagement.selectedProjectId}${window.location.search ?? ''}`} replace />
               )
             } />
             <Route path="/project/:projectId" element={
-              !projectManagement.selectedProjectId ? (<Navigate to="/" replace />) : 
+              !projectManagement.selectedProjectId ? (<Navigate to={`/${window.location.search ?? ''}`} replace />) : 
               <>
                 <Header>
                   <button onClick={toggleSidebar}>☰</button>

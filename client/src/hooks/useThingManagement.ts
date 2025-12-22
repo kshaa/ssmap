@@ -9,26 +9,54 @@ import { ProjectPostFeeling } from '@shared/projectPostFeeling'
 const latviaZoom = 7
 const latviaCoordinates: Coordinates = { lat: 56.8796, lng: 24.6032 }
 
+const DEFAULT_STAR_FILTER = 0
+const DEFAULT_SHOW_SEEN_FILTER = true
+const DEFAULT_SHOW_UNSEEN_FILTER = true
+
+// Functions to persist filter settings in query parameters
+const getFilterSettingsFromQueryParams = (): { starFilter: number, showSeenFilter: boolean, showUnseenFilter: boolean } => {
+  const queryParams = new URLSearchParams(window.location.search)
+  return {
+    starFilter: queryParams.has('starFilter') ? parseInt(queryParams.get('starFilter') ?? DEFAULT_STAR_FILTER.toString()) : DEFAULT_STAR_FILTER,
+    showSeenFilter: queryParams.has('showSeenFilter') ? queryParams.get('showSeenFilter') === 'true' : DEFAULT_SHOW_SEEN_FILTER,
+    showUnseenFilter: queryParams.has('showUnseenFilter') ? queryParams.get('showUnseenFilter') === 'true' : DEFAULT_SHOW_UNSEEN_FILTER,
+  }
+}
+
+const setFilterSettingsInQueryParams = (starFilter: number, showSeenFilter: boolean, showUnseenFilter: boolean) => {
+  console.log('setFilterSettingsInQueryParams', starFilter, showSeenFilter, showUnseenFilter)
+  const queryParams = new URLSearchParams(window.location.search)
+  if (starFilter !== DEFAULT_STAR_FILTER) queryParams.set('starFilter', starFilter.toString())
+  if (showSeenFilter !== DEFAULT_SHOW_SEEN_FILTER) queryParams.set('showSeenFilter', showSeenFilter.toString())
+  if (showUnseenFilter !== DEFAULT_SHOW_UNSEEN_FILTER) queryParams.set('showUnseenFilter', showUnseenFilter.toString())
+  window.history.pushState({}, '', `?${queryParams.toString()}`)
+}
+
 export const useThingManagement = (projectManagement: ProjectManagement) => {
   const [projectWithContent, setProjectWithContent] = useState<ProjectWithContentAndMetadata | null>(null)
   const [mapCenterCoordinates] = useState<Coordinates>(latviaCoordinates)
   const [mapZoom, setMapZoom] = useState<number>(latviaZoom)
   const [focusedPost, setFocusedPost] = useState<ParsedPostWithUrl | null>(null)
-  const [starFilter, setStarFilter] = useState<number>(0)
-  const [showSeenFilter, setShowSeenFilter] = useState<boolean>(true)
-  const [showUnseenFilter, setShowUnseenFilter] = useState<boolean>(true)
+
+  const { starFilter: persistedStarFilter, showSeenFilter: persistedShowSeenFilter, showUnseenFilter: persistedShowUnseenFilter } = getFilterSettingsFromQueryParams()
+  const [starFilter, setStarFilter] = useState<number>(persistedStarFilter)
+  const [showSeenFilter, setShowSeenFilter] = useState<boolean>(persistedShowSeenFilter)
+  const [showUnseenFilter, setShowUnseenFilter] = useState<boolean>(persistedShowUnseenFilter)
 
   const adjustStarFilter = useCallback((stars: number) => {
     setStarFilter(stars)
-  }, [])
+    setFilterSettingsInQueryParams(stars, showSeenFilter, showUnseenFilter)
+  }, [starFilter, showSeenFilter, showUnseenFilter])
 
   const adjustShowSeenFilter = useCallback((show: boolean) => {
     setShowSeenFilter(show)
-  }, [])
+    setFilterSettingsInQueryParams(starFilter, show, showUnseenFilter)
+  }, [starFilter, showSeenFilter, showUnseenFilter])
 
   const adjustShowUnseenFilter = useCallback((show: boolean) => {
     setShowUnseenFilter(show)
-  }, [])
+    setFilterSettingsInQueryParams(starFilter, showSeenFilter, show)
+  }, [starFilter, showSeenFilter, showUnseenFilter])
 
   const appendPosts = useCallback((thing: PostThingSync | FeedAndPostThingSync) => {
     if (!projectWithContent) {
