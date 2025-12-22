@@ -57,6 +57,18 @@ const syncPost = async (state: State, rawPostUrl: string): Promise<ParsedPostWit
     const post = await state.fetcher.fetchParsedPost(postUrl)
     // Upsert the post into the database
     const persistedPost = await state.database.tables.post.upsert(postUrl, post.data)
+    // If the post content has changed, update all project posts that reference this post
+    const isUpdated = existingPost && JSON.stringify(existingPost.data) !== JSON.stringify(post.data)
+    if (isUpdated) {
+      logger.info(`Post ${postUrl} has changed, updating all project posts that reference it`)
+      const projectPostsFeelings = await state.database.tables.projectPostFeeling.getByPostUrl(postUrl)
+      logger.info(`Found ${projectPostsFeelings.length} project posts that reference this post, updating`)
+      for (const projectPostFeeling of projectPostsFeelings) {
+        await state.database.tables.projectPostFeeling.upsert(projectPostFeeling.projectId, projectPostFeeling.postUrl, { ...projectPostFeeling, isSeen: false }).catch((err) => {
+          logger.error(`Failed to update project post feeling ${projectPostFeeling.projectId} ${projectPostFeeling.postUrl}`, err)
+        })
+      }
+    }
     // Return the persisted post with timestamps
     return { ...persistedPost, staleness: existingPost ? Staleness.Refreshed : Staleness.FreshlyFetched }
   })

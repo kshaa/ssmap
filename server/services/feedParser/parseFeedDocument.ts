@@ -43,7 +43,9 @@ export const getPosts = (feedxml: Document): PostReference[] => {
 }
 
 export const parseFeedDocument = (document: string): ParsedFeed => {
+  logger.info(`Parsing feed document: ${document}`)
   const dom = new JSDOM(document, { contentType: 'text/xml' })
+  logger.info(`Parsed feed document`)
   const feedxml = dom.window.document
   const title = getTitle(feedxml)
   const ttlSeconds = getTtlSeconds(feedxml, MIN_FEED_TTL_SECONDS)

@@ -43,7 +43,7 @@ describe('SSProjectService', () => {
   })
 
   it('should get a project', async () => {
-    const project2 = await projectService.getProject(projectId)
+    const project2 = await projectService.getProject(projectId, false)
     projectWithContentAndMetadataSchema.parse(project2)
   })
 })

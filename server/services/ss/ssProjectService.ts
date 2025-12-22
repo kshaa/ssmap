@@ -8,7 +8,7 @@ import { NotFoundError } from "@shared/errors/notFoundError"
 
 export interface SSProjectService {
   upsertProject: (project: Project) => Promise<Project & CrudMetadata>
-  getProject: (id: string) => Promise<ProjectWithContentAndMetadata>
+  getProject: (id: string, isFresh: boolean) => Promise<ProjectWithContentAndMetadata>
   addThing: (projectId: string, thingUrl: string) => Promise<PostThingSync | FeedAndPostThingSync>
   ratePost: (projectId: string, postUrl: string, rating: Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>) => Promise<void>
 }
@@ -29,16 +29,36 @@ const upsertProject = async (state: State, project: Project): Promise<Project & 
   return await state.database.tables.project.upsert(project)
 }
 
-const getProject = async (state: State, id: string): Promise<ProjectWithContentAndMetadata> => {
+const refreshProject = async (state: State, id: string): Promise<void> => {
   const project = await state.database.tables.project.get(id)
   if (!project) {
     throw new NotFoundError({ entity: 'Project', id })
   }
+
+  const projectFeeds = await state.database.tables.projectFeed.getAll(id)
+  for (const projectFeed of projectFeeds) {
+    const feed = await state.database.tables.feed.get(projectFeed.feedUrl)
+    const isListingPage = feed?.isListingPage ?? false
+    await state.syncService.syncFeed(projectFeed.feedUrl, isListingPage)
+  }
+
+  const projectPosts = await state.database.tables.projectPost.getAll(id)
+  for (const projectPost of projectPosts) {
+    await state.syncService.syncPost(projectPost.postUrl)
+  }
+}
+
+const getProject = async (state: State, id: string, isFresh: boolean): Promise<ProjectWithContentAndMetadata> => {
+  const project = await state.database.tables.project.get(id)
+  if (!project) {
+    throw new NotFoundError({ entity: 'Project', id })
+  }
+  if (isFresh) await refreshProject(state, id)
   const projectPosts = await state.database.tables.projectPost.getAll(id)
   const projectFeeds = await state.database.tables.projectFeed.getAll(id)
   const feeds = await Promise.all(projectFeeds.map(projectFeed => state.database.tables.feed.get(projectFeed.feedUrl))).then(feeds => feeds.filter(feed => feed !== null))
   const feedPosts = await state.database.tables.feedPost.getAll(id)
-  const postUrls = [...(new Set([...feedPosts.map(feedPost => feedPost.postUrl), ...projectPosts.map(projectPost => projectPost.postUrl)]))]
+  const postUrls = [...(new Set([...feeds.flatMap(feed => feed.data.posts.map(post => post.url)), ...projectPosts.map(projectPost => projectPost.postUrl)]))]
   const posts = await Promise.all(postUrls.map(postUrl => state.database.tables.post.get(postUrl))).then(posts => posts.filter(post => post !== null))
   const projectPostFeelings = await state.database.tables.projectPostFeeling.getAll(id)
   return { project, projectPosts, projectFeeds, feeds, feedPosts, posts, projectPostFeelings }

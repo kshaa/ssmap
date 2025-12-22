@@ -130,6 +130,16 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
     })
   }, [projectManagement.selectedProjectId])
 
+  const refreshProjectWithContent = useCallback(async () => {
+    if (!projectManagement.selectedProjectId) {
+      console.error('Base project missing, cannot refresh project')
+      return
+    }
+    await fetchProjectGetThings(projectManagement.selectedProjectId, true).then(projectData => {
+      setProjectWithContent(projectData)
+    })
+  }, [projectManagement.selectedProjectId])
+
   useEffect(() => {
     console.log('Loading project data for selectedProjectId', projectManagement.selectedProjectId)
     if (!projectManagement.selectedProjectId) {
@@ -137,7 +147,7 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
       setFocusedPost(null)
       return
     }
-    fetchProjectGetThings(projectManagement.selectedProjectId).then(projectData => {
+    fetchProjectGetThings(projectManagement.selectedProjectId, false).then(projectData => {
       console.log(`Project data loaded, name: ${projectData.project.name}, id: ${projectData.project.id}, posts: ${projectData.posts.length}`)
       setProjectWithContent(projectData)
     }).catch(error => {
@@ -181,6 +191,7 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
     appendPosts,
     focusPost,
     ratePost,
+    refreshProjectWithContent,
   }
 }
 

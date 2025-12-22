@@ -15,7 +15,14 @@ router.post('/project/:projectId/thing', async (ctx) => {
 
 router.get('/project/:projectId/things', async (ctx) => {
   const projectId = await z.string().parseAsync(ctx.params.projectId).catch((e) => { throw new ParseError({ entity: 'params', isUserError: true }, e) })
-  const project = await ctx.services.ssProjectService.getProject(projectId)
+  const project = await ctx.services.ssProjectService.getProject(projectId, false)
+  ctx.body = project
+  ctx.status = 200
+})
+
+router.get('/project/:projectId/things/fresh', async (ctx) => {
+  const projectId = await z.string().parseAsync(ctx.params.projectId).catch((e) => { throw new ParseError({ entity: 'params', isUserError: true }, e) })
+  const project = await ctx.services.ssProjectService.getProject(projectId, true)
   ctx.body = project
   ctx.status = 200
 })

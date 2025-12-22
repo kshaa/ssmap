@@ -56,8 +56,8 @@ export const fetchProjectCreateThing = async (projectId: string, thingUrl: strin
   return await parseFetchJson<PostThingSync | FeedAndPostThingSync>(fetchPromise, schema)
 }
 
-export const fetchProjectGetThings = async (projectId: string): Promise<ProjectWithContentAndMetadata> => {
-  const fetchPromise = fetch(`/api/project/${projectId}/things`, {
+export const fetchProjectGetThings = async (projectId: string, isFresh: boolean): Promise<ProjectWithContentAndMetadata> => {
+  const fetchPromise = fetch(`/api/project/${projectId}/things${isFresh ? '/fresh' : ''}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

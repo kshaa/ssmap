@@ -74,6 +74,12 @@ export const PostManagement = ({
     thingManagement.adjustShowUnseenFilter(!showUnseenFilter)
   }
 
+  const handleRefreshProjectWithContent = () => {
+    thingManagement.refreshProjectWithContent().catch((e) => {
+      addErrorMessage(typeof e === 'object' && e !== null && 'message' in e && typeof e.message === 'string' ? e.message : 'Unknown error')
+    })
+  }
+
   return (
     <InfoWrapper $isHorizontal={isLandscape}>
       <PostForm projectId={selectedProjectId} addErrorMessage={addErrorMessage} appendPosts={appendPosts} />
@@ -95,6 +101,9 @@ export const PostManagement = ({
           <SingleFilter>
             <span>Neapskatītie (atjaunotie)</span>
             <input checked={showUnseenFilter} onClick={handleShowUnseenFilterChange} type="checkbox" />
+          </SingleFilter>
+          <SingleFilter>
+            <button onClick={handleRefreshProjectWithContent}>Atjaunot sludinājumus</button>
           </SingleFilter>
         </PostFilter>
       )}

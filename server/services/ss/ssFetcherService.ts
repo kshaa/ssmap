@@ -43,9 +43,12 @@ const fetchParsedPost = async (rawUrl: string): Promise<ParsedPostWithUrl> => {
     throw new ParseError({ entity: 'post', isUserError: false }, err)
   })
 
-  const data = parsePostDocument(text)
-
-  return { url, data }
+  try {
+    const data = parsePostDocument(text)
+    return { url, data }
+  } catch (err) {
+    throw new ParseError({ entity: 'post', isUserError: false }, err)
+  }
 }
 
 const fetchParsedFeed = async (rawUrl: string): Promise<ParsedFeedWithUrl> => {
@@ -62,9 +65,12 @@ const fetchParsedFeed = async (rawUrl: string): Promise<ParsedFeedWithUrl> => {
     throw new ParseError({ entity: 'feed', isUserError: false }, err)
   })
 
-  const data = parseFeedDocument(text)
-
-  return { url, data, isListingPage: false }
+  try {
+    const data = parseFeedDocument(text)
+    return { url, data, isListingPage: false }
+  } catch (err) {
+    throw new ParseError({ entity: 'feed', isUserError: false }, err)
+  }
 }
 
 const fetchParsedListingPageSingle = async (rawUrl: string): Promise<ParsedFeed> => {
@@ -82,7 +88,11 @@ const fetchParsedListingPageSingle = async (rawUrl: string): Promise<ParsedFeed>
     throw new ParseError({ entity: 'page', isUserError: false }, err)
   })
 
-  return parseListingDocument(text)
+  try {
+    return parseListingDocument(text)
+  } catch (err) {
+    throw new ParseError({ entity: 'page', isUserError: false }, err)
+  }
 }
 
 const fetchParsedListingPage = async (rawUrl: string): Promise<ParsedFeedWithUrl> => {
