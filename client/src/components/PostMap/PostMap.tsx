@@ -104,8 +104,7 @@ const PostMap = ({
   isSidebarOpen,
   isHorizontal = false,
 }: PostMapProps) => {
-  const { focusedPost, mapZoom: defaultZoom, mapCenterCoordinates, postRatings, ratePost, projectWithContent } = thingManagement
-  const postList = projectWithContent?.posts ?? []
+  const { focusedPost, mapZoom: defaultZoom, mapCenterCoordinates, postRatings, ratePost, postList } = thingManagement
   const defaultCenter = mapCenterCoordinates
 
   const mapRef = useRef<L.Map | null>(null)

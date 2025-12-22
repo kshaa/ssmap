@@ -14,6 +14,21 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
   const [mapCenterCoordinates] = useState<Coordinates>(latviaCoordinates)
   const [mapZoom, setMapZoom] = useState<number>(latviaZoom)
   const [focusedPost, setFocusedPost] = useState<ParsedPostWithUrl | null>(null)
+  const [starFilter, setStarFilter] = useState<number>(0)
+  const [showSeenFilter, setShowSeenFilter] = useState<boolean>(true)
+  const [showUnseenFilter, setShowUnseenFilter] = useState<boolean>(true)
+
+  const adjustStarFilter = useCallback((stars: number) => {
+    setStarFilter(stars)
+  }, [])
+
+  const adjustShowSeenFilter = useCallback((show: boolean) => {
+    setShowSeenFilter(show)
+  }, [])
+
+  const adjustShowUnseenFilter = useCallback((show: boolean) => {
+    setShowUnseenFilter(show)
+  }, [])
 
   const appendPosts = useCallback((thing: PostThingSync | FeedAndPostThingSync) => {
     if (!projectWithContent) {
@@ -111,8 +126,26 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
     }))
   }, [projectWithContent])
 
+  const postList = useMemo(() => {
+    if (!projectWithContent) return []
+    return projectWithContent.posts.filter(post => {
+      if (starFilter > 0 && (postRatings[post.url]?.stars ?? 0) < starFilter) return false
+      if (!showSeenFilter && postRatings[post.url]?.isSeen) return false
+      if (!showUnseenFilter && !postRatings[post.url]?.isSeen) return false
+
+      return true
+    })
+  }, [projectWithContent, starFilter, postRatings, showSeenFilter, showUnseenFilter])
+
   return {
     projectWithContent,
+    postList,
+    starFilter,
+    adjustStarFilter,
+    showSeenFilter,
+    adjustShowSeenFilter,
+    showUnseenFilter,
+    adjustShowUnseenFilter,
     mapCenterCoordinates,
     mapZoom,
     focusedPost,
