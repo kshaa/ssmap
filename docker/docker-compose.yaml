@@ -16,7 +16,7 @@ services:
     environment:
       - DATABASE_PATH=/mnt/data/database.db
     volumes:
-      - ./:/mnt/data
+      - ./api/data:/mnt/data
     restart: unless-stopped
 
   ss_client:
