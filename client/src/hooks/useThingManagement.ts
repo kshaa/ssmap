@@ -153,9 +153,10 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
     fetchProjectGetThings(projectManagement.selectedProjectId, false).then(projectData => {
       console.log(`Project data loaded, name: ${projectData.project.name}, id: ${projectData.project.id}, posts: ${projectData.posts.length}`)
       setProjectWithContent(projectData)
+      projectManagement.createProject(projectData.project.id, projectData.project.name)
     }).catch(error => {
       console.error('Failed to load project', error)
-      projectManagement.setSelectedProjectId(null)
+      projectManagement.setSelectedProjectId(null, false)
     })
   }, [projectManagement.selectedProjectId])
 

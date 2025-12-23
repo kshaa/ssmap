@@ -127,7 +127,7 @@ const App = () => {
   }
 
   const handleProjectPicker = () => {
-    projectManagement.setSelectedProjectId(null)
+    projectManagement.setSelectedProjectId(null, false)
   }
 
   return (
@@ -155,7 +155,7 @@ const App = () => {
                   </Header>
                   <ProjectSelection>
                     {projectManagement.projects.map((project) => (
-                      <ProjectSelectionItem onClick={() => projectManagement.setSelectedProjectId(project.id)} key={project.id}>
+                      <ProjectSelectionItem onClick={() => projectManagement.setSelectedProjectId(project.id, false)} key={project.id}>
                         {project.name}
                       </ProjectSelectionItem>
                     ))}

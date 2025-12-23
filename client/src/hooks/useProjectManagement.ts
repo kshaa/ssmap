@@ -34,33 +34,35 @@ export const useProjectManagement = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
-  const setSelectedProjectIdWithPersistence = useCallback((projectId: string | null) => {
+  const setSelectedProjectIdWithPersistence = useCallback((projectId: string | null, isDiscovered: boolean) => {
     setSelectedProjectId(projectId)
-    setSelectedProject(projects.find(project => project.id === projectId) ?? null)
+    if (!isDiscovered) setSelectedProject(projects.find(project => project.id === projectId) ?? null)
     setPersistedSelectedProjectId(projectId)
-  }, [setPersistedSelectedProjectId])
+  }, [projects])
 
   useEffect(() => {
-    const persistedProjects = getPersistedProjects()
-    setProjects(persistedProjects)
-    console.log('Persisted projects', persistedProjects)
+    console.log('Persisted projects', projects)
     const projectFromUrlPath = location.pathname.match(/^\/project\/([a-f0-9-]+)$/) ?? null
     if (projectFromUrlPath) {
       // Parses /project/:projectId to get the projectId
-      setSelectedProjectIdWithPersistence(projectFromUrlPath[1])
+      setSelectedProjectIdWithPersistence(projectFromUrlPath[1], false)
     } else {
       // Fallback to use persisted selected project id
-      setSelectedProjectIdWithPersistence(getPersistedSelectedProjectId() ?? null)
+      setSelectedProjectIdWithPersistence(getPersistedSelectedProjectId() ?? null, false)
     }
   }, [])
 
   const createProject = useCallback((id: string, name: string) => {
     const project = { id, name }
+      if (projects.find(p => p.id === project.id)) {
+        return
+      }
+      setProjects([...projects, project])
+      setSelectedProject(project)
       addPersistedProject(project)
-      setSelectedProjectIdWithPersistence(project.id)
-      setPersistedSelectedProjectId(project.id)
+      setSelectedProjectIdWithPersistence(project.id, true)
     },
-    [addPersistedProject, setSelectedProjectIdWithPersistence, setPersistedSelectedProjectId]
+    [projects, addPersistedProject, setSelectedProjectIdWithPersistence, setPersistedSelectedProjectId]
   )
 
   return {
