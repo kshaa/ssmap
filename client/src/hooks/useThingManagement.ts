@@ -27,8 +27,11 @@ const setFilterSettingsInQueryParams = (starFilter: number, showSeenFilter: bool
   console.log('setFilterSettingsInQueryParams', starFilter, showSeenFilter, showUnseenFilter)
   const queryParams = new URLSearchParams(window.location.search)
   if (starFilter !== DEFAULT_STAR_FILTER) queryParams.set('starFilter', starFilter.toString())
+  else queryParams.delete('starFilter')
   if (showSeenFilter !== DEFAULT_SHOW_SEEN_FILTER) queryParams.set('showSeenFilter', showSeenFilter.toString())
+  else queryParams.delete('showSeenFilter')
   if (showUnseenFilter !== DEFAULT_SHOW_UNSEEN_FILTER) queryParams.set('showUnseenFilter', showUnseenFilter.toString())
+  else queryParams.delete('showUnseenFilter')
   window.history.pushState({}, '', `?${queryParams.toString()}`)
 }
 
