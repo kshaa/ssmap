@@ -43,7 +43,6 @@ Good things:
   - The map is as large as your monitor
   
 Suboptimal things:  
-_N.B. This is not to say that this project is bad, these are just improvements, things I didn't implement, etc._  
 - OSM map data is not cached, in production users would get rate-limited and see missing tiles
 - This project was initially written in JS in 2018, a recent refactor has still resulted in leftover cruft
 - The parsers are brittle, ss.lv could refactor their FE and this thing would break (expected, they don't raelly have an API)
