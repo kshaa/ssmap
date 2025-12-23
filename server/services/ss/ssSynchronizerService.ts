@@ -156,7 +156,6 @@ const syncAllFeedsAndPosts = async (database: DatabaseService, ssSynchronizer: S
 
 export const runSsSynchronizerJob = (database: DatabaseService, ssSynchronizer: SSSynchronizerService): void => {
   const queue = new PQueue({ concurrency: 1 })
-  queue.add(() => syncAllFeedsAndPosts(database, ssSynchronizer))
   setInterval(() => {
     queue.add(() => syncAllFeedsAndPosts(database, ssSynchronizer))
   }, SYNC_INTERVAL_SECONDS * 1000)
