@@ -1,0 +1,48 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Build outputs (for dev builds)
+build
+dist
+*.tsbuildinfo
+
+# Testing
+coverage
+src/**/*.test.ts
+src/**/*.test.tsx
+src/**/*.spec.ts
+src/**/*.spec.tsx
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Environment
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+
+# Config (if you don't need these in production)
+config/jest
+scripts/test.js
+
+# README
+README.md
+

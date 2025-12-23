@@ -1,0 +1,43 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Build outputs
+dist
+*.tsbuildinfo
+
+# Testing
+coverage
+*.test.ts
+*.spec.ts
+test
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Database
+*.db
+*.sqlite
+
+# Environment
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+

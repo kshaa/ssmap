@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  ss_reverse_proxy:
+    image: nginx:alpine
+    ports:
+      - "1337:80"
+    volumes:
+      - ./reverse_proxy/nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: unless-stopped
+  
+  ss_api:
+    build:
+      context: ..
+      dockerfile: docker/api/Dockerfile
+    restart: unless-stopped
+
+  ss_client:
+    build:
+      context: ..
+      dockerfile: docker/client/Dockerfile
+    restart: unless-stopped

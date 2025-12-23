@@ -54,6 +54,5 @@ _N.B. This is not to say that this project is bad, these are just improvements, 
 - The parsing is bare-bones (one could parse more structured data out of the posts)
 - All the build configs (webpack, tsconfig, package.json) were edited by AI, they are not good
 - Hot-reload is broken - does not work (I think this was done by AI)
-- This project could be dockerized (I did not want to bother with that)
 - There is not user authorization or permission management (I did not care about that)
 - Probably many other issues/improvements could be found (but I have limited time and my personal scope for the project was also limited)
