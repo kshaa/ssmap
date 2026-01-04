@@ -2,7 +2,11 @@ import { StructuredPrice } from "@shared/post"
 
 export const getPostPriceStructured = (value: string): StructuredPrice | null => {
     if (!value) return null
-    const parts: string[] = value.split(' ') ?? []
+
+    // If there are parentheses, we need to remove everything after them including the parentheses
+    const parenthesisIndex = value.indexOf('(')
+    const valueWithoutParentheses = parenthesisIndex !== -1 ? value.substring(0, parenthesisIndex) : value
+    const parts: string[] = valueWithoutParentheses.split(' ') ?? []
 
     // Split parts into two arrays
     // First part is all strings that are only numbers

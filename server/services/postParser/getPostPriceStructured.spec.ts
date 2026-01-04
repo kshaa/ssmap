@@ -10,6 +10,7 @@ describe('getPostPriceStructured', () => {
         expect(getPostPriceStructured('950 €/mēn.')).to.deep.equal({ amount: 950, currency: '€', period: 'mēn.' })
         expect(getPostPriceStructured('70 €/dienā')).to.deep.equal({ amount: 70, currency: '€', period: 'dienā' })
         expect(getPostPriceStructured('400 €/ned.')).to.deep.equal({ amount: 400, currency: '€', period: 'ned.' })
+        expect(getPostPriceStructured('189 500 € (3 158.33 €/m²)')).to.deep.equal({ amount: 189500, currency: '€' })
     })
     it('should return null if the price is not a valid number', () => {
         expect(getPostPriceStructured('potato 123')).to.deep.equal(null)
