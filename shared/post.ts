@@ -6,6 +6,12 @@ export interface StructuredPrice {
   period?: string
 }
 
+export const structuredPriceSchema = z.object({
+  amount: z.number(),
+  currency: z.string().optional(),
+  period: z.string().optional(),
+})
+
 export interface Coordinates {
   lat: number
   lng: number
@@ -53,6 +59,7 @@ export const parsedPostSchema = z.object({
   addressInfo: addressInfoSchema,
   genericInfo: genericInfoSchema,
   price: z.string().nullable().optional(),
+  priceStructured: structuredPriceSchema.nullable().optional(),
   title: z.string().nullable().optional(),
 })
 

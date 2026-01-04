@@ -12,25 +12,41 @@ const latviaCoordinates: Coordinates = { lat: 56.8796, lng: 24.6032 }
 const DEFAULT_STAR_FILTER = 0
 const DEFAULT_SHOW_SEEN_FILTER = true
 const DEFAULT_SHOW_UNSEEN_FILTER = true
+const DEFAULT_MIN_PRICE = null
+const DEFAULT_MAX_PRICE = null
+interface FilterSettings {
+  starFilter: number
+  showSeenFilter: boolean
+  showUnseenFilter: boolean
+  minPrice: number | null
+  maxPrice: number | null
+}
 
 // Functions to persist filter settings in query parameters
-const getFilterSettingsFromQueryParams = (): { starFilter: number, showSeenFilter: boolean, showUnseenFilter: boolean } => {
+const getFilterSettingsFromQueryParams = (): FilterSettings => {
   const queryParams = new URLSearchParams(window.location.search)
+  let queryMinPrice: number | null = queryParams.has('minPrice') ? parseInt(queryParams.get('minPrice') as string) : NaN
+  if (isNaN(queryMinPrice)) queryMinPrice = null
+  let queryMaxPrice: number | null = queryParams.has('maxPrice') ? parseInt(queryParams.get('maxPrice') as string) : NaN
+  if (isNaN(queryMaxPrice)) queryMaxPrice = null
+
   return {
     starFilter: queryParams.has('starFilter') ? parseInt(queryParams.get('starFilter') ?? DEFAULT_STAR_FILTER.toString()) : DEFAULT_STAR_FILTER,
     showSeenFilter: queryParams.has('showSeenFilter') ? queryParams.get('showSeenFilter') === 'true' : DEFAULT_SHOW_SEEN_FILTER,
     showUnseenFilter: queryParams.has('showUnseenFilter') ? queryParams.get('showUnseenFilter') === 'true' : DEFAULT_SHOW_UNSEEN_FILTER,
+    minPrice: queryMinPrice ?? DEFAULT_MIN_PRICE,
+    maxPrice: queryMaxPrice ?? DEFAULT_MAX_PRICE,
   }
 }
 
-const setFilterSettingsInQueryParams = (starFilter: number, showSeenFilter: boolean, showUnseenFilter: boolean) => {
-  console.log('setFilterSettingsInQueryParams', starFilter, showSeenFilter, showUnseenFilter)
+const setFilterSettingsInQueryParams = (filterSettings: FilterSettings) => {
+  console.log('setFilterSettingsInQueryParams', filterSettings)
   const queryParams = new URLSearchParams(window.location.search)
-  if (starFilter !== DEFAULT_STAR_FILTER) queryParams.set('starFilter', starFilter.toString())
+  if (filterSettings.starFilter !== DEFAULT_STAR_FILTER) queryParams.set('starFilter', filterSettings.starFilter.toString())
   else queryParams.delete('starFilter')
-  if (showSeenFilter !== DEFAULT_SHOW_SEEN_FILTER) queryParams.set('showSeenFilter', showSeenFilter.toString())
+  if (filterSettings.showSeenFilter !== DEFAULT_SHOW_SEEN_FILTER) queryParams.set('showSeenFilter', filterSettings.showSeenFilter.toString())
   else queryParams.delete('showSeenFilter')
-  if (showUnseenFilter !== DEFAULT_SHOW_UNSEEN_FILTER) queryParams.set('showUnseenFilter', showUnseenFilter.toString())
+  if (filterSettings.showUnseenFilter !== DEFAULT_SHOW_UNSEEN_FILTER) queryParams.set('showUnseenFilter', filterSettings.showUnseenFilter.toString())
   else queryParams.delete('showUnseenFilter')
   window.history.pushState({}, '', `?${queryParams.toString()}`)
 }
@@ -41,25 +57,44 @@ export const useThingManagement = (projectManagement: ProjectManagement, isLands
   const [mapZoom, setMapZoom] = useState<number>(latviaZoom)
   const [focusedPost, setFocusedPost] = useState<ParsedPostWithUrl | null>(null)
 
-  const { starFilter: persistedStarFilter, showSeenFilter: persistedShowSeenFilter, showUnseenFilter: persistedShowUnseenFilter } = getFilterSettingsFromQueryParams()
-  const [starFilter, setStarFilter] = useState<number>(persistedStarFilter)
-  const [showSeenFilter, setShowSeenFilter] = useState<boolean>(persistedShowSeenFilter)
-  const [showUnseenFilter, setShowUnseenFilter] = useState<boolean>(persistedShowUnseenFilter)
+  const { starFilter: persistedStarFilter, showSeenFilter: persistedShowSeenFilter, showUnseenFilter: persistedShowUnseenFilter, minPrice: persistedMinPrice, maxPrice: persistedMaxPrice } = getFilterSettingsFromQueryParams()
+  const [filterSettings, setFilterSettings] = useState<FilterSettings>({
+    starFilter: persistedStarFilter,
+    showSeenFilter: persistedShowSeenFilter,
+    showUnseenFilter: persistedShowUnseenFilter,
+    minPrice: persistedMinPrice,
+    maxPrice: persistedMaxPrice,
+  })
 
   const adjustStarFilter = useCallback((stars: number) => {
-    setStarFilter(stars)
-    setFilterSettingsInQueryParams(stars, showSeenFilter, showUnseenFilter)
-  }, [starFilter, showSeenFilter, showUnseenFilter])
+    const newFilterSettings = { ...filterSettings, starFilter: stars }
+    setFilterSettings(newFilterSettings)
+    setFilterSettingsInQueryParams(newFilterSettings)
+  }, [filterSettings, setFilterSettings])
 
   const adjustShowSeenFilter = useCallback((show: boolean) => {
-    setShowSeenFilter(show)
-    setFilterSettingsInQueryParams(starFilter, show, showUnseenFilter)
-  }, [starFilter, showSeenFilter, showUnseenFilter])
+    const newFilterSettings = { ...filterSettings, showSeenFilter: show }
+    setFilterSettings(newFilterSettings)
+    setFilterSettingsInQueryParams(newFilterSettings)
+  }, [filterSettings, setFilterSettings])
 
   const adjustShowUnseenFilter = useCallback((show: boolean) => {
-    setShowUnseenFilter(show)
-    setFilterSettingsInQueryParams(starFilter, showSeenFilter, show)
-  }, [starFilter, showSeenFilter, showUnseenFilter])
+    const newFilterSettings = { ...filterSettings, showUnseenFilter: show }
+    setFilterSettings(newFilterSettings)
+    setFilterSettingsInQueryParams(newFilterSettings)
+  }, [filterSettings, setFilterSettings])
+
+  const adjustMinPrice = useCallback((minPrice: number | null) => {
+    const newFilterSettings = { ...filterSettings, minPrice: minPrice }
+    setFilterSettings(newFilterSettings)
+    setFilterSettingsInQueryParams(newFilterSettings)
+  }, [filterSettings, setFilterSettings])
+
+  const adjustMaxPrice = useCallback((maxPrice: number | null) => {
+    const newFilterSettings = { ...filterSettings, maxPrice: maxPrice }
+    setFilterSettings(newFilterSettings)
+    setFilterSettingsInQueryParams(newFilterSettings)
+  }, [filterSettings, setFilterSettings])
 
   const appendPosts = useCallback((thing: PostThingSync | FeedAndPostThingSync) => {
     if (!projectWithContent) {
@@ -172,23 +207,27 @@ export const useThingManagement = (projectManagement: ProjectManagement, isLands
   const postList = useMemo(() => {
     if (!projectWithContent) return []
     return projectWithContent.posts.filter(post => {
-      if (starFilter > 0 && (postRatings[post.url]?.stars ?? 0) < starFilter) return false
-      if (!showSeenFilter && postRatings[post.url]?.isSeen) return false
-      if (!showUnseenFilter && !postRatings[post.url]?.isSeen) return false
-
+      if (filterSettings.starFilter > 0 && (postRatings[post.url]?.stars ?? 0) < filterSettings.starFilter) return false
+      if (!filterSettings.showSeenFilter && postRatings[post.url]?.isSeen) return false
+      if (!filterSettings.showUnseenFilter && !postRatings[post.url]?.isSeen) return false
+      if (filterSettings.minPrice !== null && (post.data.priceStructured?.amount ?? 0) <= filterSettings.minPrice) {
+        console.log('Min price filter', post.data, filterSettings.minPrice)
+        return false
+      }
+      if (filterSettings.maxPrice !== null && (post.data.priceStructured?.amount ?? 0) >= filterSettings.maxPrice) return false
       return true
     })
-  }, [projectWithContent, starFilter, postRatings, showSeenFilter, showUnseenFilter])
+  }, [projectWithContent, filterSettings, postRatings])
 
   return {
     projectWithContent,
     postList,
-    starFilter,
+    filterSettings,
     adjustStarFilter,
-    showSeenFilter,
     adjustShowSeenFilter,
-    showUnseenFilter,
     adjustShowUnseenFilter,
+    adjustMinPrice,
+    adjustMaxPrice,
     mapCenterCoordinates,
     mapZoom,
     focusedPost,

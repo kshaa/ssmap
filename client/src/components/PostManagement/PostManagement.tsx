@@ -3,6 +3,7 @@ import PostForm from '@src/components/PostForm/PostForm'
 import PostList from '@src/components/PostList/PostList'
 import { ThingManagement } from '@src/hooks/useThingManagement'
 import { theme } from '@src/styling/theme'
+import { useState } from 'react'
 
 interface PostManagementProps {
   isLandscape: boolean
@@ -55,13 +56,35 @@ const SingleFilter = styled.div`
   gap: 20px;
 `
 
+const ColoredInput = styled.input<{ isValid?: boolean }>`
+  background-color: ${props => props.isValid ? 'white' : 'red'};
+`
+
 export const PostManagement = ({ 
   isLandscape, 
   selectedProjectId,
   addErrorMessage, 
   thingManagement,
 }: PostManagementProps) => {
-  const { projectWithContent, showSeenFilter, showUnseenFilter, postList, postRatings, appendPosts, focusPost, ratePost, starFilter } = thingManagement
+  const [minPriceText, setMinPriceText] = useState<string>('')
+  const [maxPriceText, setMaxPriceText] = useState<string>('')
+  const { projectWithContent, filterSettings, postList, postRatings, appendPosts, focusPost, ratePost } = thingManagement
+  const { showSeenFilter, showUnseenFilter, starFilter, minPrice, maxPrice } = filterSettings
+
+  const handleMinPriceChange = (minPriceInput: string) => {
+    setMinPriceText(minPriceInput)
+    const numerical = minPriceInput.trim() === '' ? null : parseInt(minPriceInput)
+    if (numerical !== null && isNaN(numerical)) return
+    thingManagement.adjustMinPrice(numerical)
+  }
+
+  const handleMaxPriceChange = (maxPriceInput: string) => {
+    setMaxPriceText(maxPriceInput)
+    const numerical = maxPriceInput.trim() === '' ? null : parseInt(maxPriceInput)
+    if (numerical !== null && isNaN(numerical)) return
+    thingManagement.adjustMaxPrice(numerical)
+  }
+
   const handleStarFilterChange = (stars: number) => {
     thingManagement.adjustStarFilter(stars)
   }
@@ -101,6 +124,14 @@ export const PostManagement = ({
           <SingleFilter>
             <span>Neapskatītie (atjaunotie)</span>
             <input checked={showUnseenFilter} onClick={handleShowUnseenFilterChange} type="checkbox" />
+          </SingleFilter>
+          <SingleFilter>
+            <span>Min. cena</span>
+            <ColoredInput type="text" value={minPriceText} onChange={(e) => handleMinPriceChange(e.target.value)} isValid={minPriceText === '' || !isNaN(parseInt(minPriceText))} />
+          </SingleFilter>
+          <SingleFilter>
+            <span>Max. cena</span>
+            <ColoredInput type="text" value={maxPriceText} onChange={(e) => handleMaxPriceChange(e.target.value)} isValid={maxPriceText === '' || !isNaN(parseInt(maxPriceText))} />
           </SingleFilter>
           <SingleFilter>
             <button onClick={handleRefreshProjectWithContent}>Atjaunot sludinājumus</button>
