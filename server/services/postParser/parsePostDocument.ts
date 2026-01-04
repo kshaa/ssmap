@@ -5,6 +5,7 @@ import { getPostPrice } from '@src/services/postParser/getPostPrice.js'
 import { getPostTitle } from '@src/services/postParser/getPostTitle.js'
 import { ParseError } from '@shared/errors/parseError'
 import { ParsedPost } from '@shared/post'
+import { getPostPriceStructured } from './getPostPriceStructured'
 
 export const parsePostDocument = (document: string): ParsedPost => {
   const ssdom = new JSDOM(document, {
@@ -15,12 +16,14 @@ export const parsePostDocument = (document: string): ParsedPost => {
     const genericInfo = getPostGenericInfo(ssdom.window.document)
     const addressInfo = getPostAddressInfo(ssdom.window.document)
     const price = getPostPrice(ssdom.window.document)
+    const priceStructured = price ? getPostPriceStructured(price) : undefined
     const title = getPostTitle(ssdom.window.document)
 
     return {
       addressInfo,
       genericInfo,
       price,
+      priceStructured,
       title,
     }
   } catch (err: unknown) {

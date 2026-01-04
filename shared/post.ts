@@ -1,5 +1,11 @@
 import { z } from 'zod'
 
+export interface StructuredPrice {
+  amount: number
+  currency?: string
+  period?: string
+}
+
 export interface Coordinates {
   lat: number
   lng: number
@@ -39,6 +45,7 @@ export interface ParsedPost {
   addressInfo: AddressInfo
   genericInfo: GenericInfo
   price?: string | null
+  priceStructured?: StructuredPrice | null
   title?: string | null
 }
 

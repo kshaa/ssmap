@@ -90,6 +90,10 @@ describe('PostParser', () => {
           "Ērtības": "\n\t\t\t\t\t\tBlakus upei, Dārzs, Garāža, Gāzes  katls, Karstais ūdens, Kūts, Šķūnis\n\t\t\t\t\t",
         },
         "price": "149 400 €",
+        "priceStructured": {
+          "amount": 149400,
+          "currency": "€",
+        },
         "title": "Pārdod māju ar iekšējo apdari, tikai 4 km attālumā no Olaines. Līdz īpašumam ved asfaltēts ceļš. Dzelzsbetona pamati, gāzbetona sienas, betona plātņu pārsegumi. Kopējā platība 160 m², papildus plašas bēniņu telpas, kuras iespējams pielāgot dzīvošanai"
       })
     })
