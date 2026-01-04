@@ -9,6 +9,6 @@ export interface AppContextRaw {
 }
 
 export type App = Koa<Koa.DefaultState, AppContextRaw>
-// export type AppContext = Koa.ParameterizedContext<Koa.DefaultState, AppContextRaw>
+export type AppContext = Koa.ParameterizedContext<Koa.DefaultState, AppContextRaw>
 
 export const createRouter = <S>(...props: ConstructorParameters<typeof Router<S, AppContextRaw>>) => new Router<S, AppContextRaw>(...props)

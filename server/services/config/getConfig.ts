@@ -12,6 +12,7 @@ export interface ApiConfig {
 }
 
 export interface Config {
+  adminPassword?: string
   api: ApiConfig
   database: DatabaseConfig
 }
@@ -19,6 +20,8 @@ export interface Config {
 export const getConfig = (): Config => {
   logger.info('Loading config w/ dotenv support')
   dotenv.config({ quiet: true })
+
+  const adminPassword = process.env.ADMIN_PASSWORD
 
   let apiPort
   if (process.env.PORT) {
@@ -46,6 +49,7 @@ export const getConfig = (): Config => {
   }
 
   const config = {
+    adminPassword,
     api: {
       port: apiPort,
     },
