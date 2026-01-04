@@ -35,7 +35,7 @@ const setFilterSettingsInQueryParams = (starFilter: number, showSeenFilter: bool
   window.history.pushState({}, '', `?${queryParams.toString()}`)
 }
 
-export const useThingManagement = (projectManagement: ProjectManagement) => {
+export const useThingManagement = (projectManagement: ProjectManagement, isLandscape: boolean, setIsSidebarOpen: (isSidebarOpen: boolean) => void) => {
   const [projectWithContent, setProjectWithContent] = useState<ProjectWithContentAndMetadata | null>(null)
   const [mapCenterCoordinates] = useState<Coordinates>(latviaCoordinates)
   const [mapZoom, setMapZoom] = useState<number>(latviaZoom)
@@ -112,8 +112,9 @@ export const useThingManagement = (projectManagement: ProjectManagement) => {
       }
       setFocusedPost(focusedPost)
       setMapZoom(13)
+      if (!isLandscape) setIsSidebarOpen(false)
     }
-  }, [])
+  }, [isLandscape, setIsSidebarOpen])
 
   const ratePost = useCallback((post: ParsedPostWithUrl, rating: Omit<ProjectPostFeeling, 'projectId' | 'postUrl'>) => {
     if (!projectManagement.selectedProjectId) {

@@ -2,8 +2,6 @@ import styled from 'styled-components'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { theme, darken } from '@src/styling/theme'
 import { GlobalStyles } from '@src/styling/GlobalStyles'
-import PostForm from '@src/components/PostForm/PostForm'
-import PostList from '@src/components/PostList/PostList'
 import PostMap from '@src/components/PostMap/PostMap'
 import { useOrientation } from '@src/hooks/useOrientation'
 import { useErrorNotifications } from '@src/hooks/useErrorNotifications'
@@ -115,8 +113,8 @@ const App = () => {
   const isLandscape = useOrientation()
   const { errorList, addErrorMessage } = useErrorNotifications()
   const projectManagement = useProjectManagement()
-  const thingManagement = useThingManagement(projectManagement)
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(isLandscape)
+  const thingManagement = useThingManagement(projectManagement, isLandscape, setIsSidebarOpen)
 
   useEffect(() => {
     setIsSidebarOpen(isLandscape)
