@@ -39,12 +39,12 @@ const refreshProject = async (state: State, id: string): Promise<void> => {
   for (const projectFeed of projectFeeds) {
     const feed = await state.database.tables.feed.get(projectFeed.feedUrl)
     const isListingPage = feed?.isListingPage ?? false
-    await state.syncService.syncFeed(projectFeed.feedUrl, isListingPage)
+    await state.syncService.syncFeed(projectFeed.feedUrl, isListingPage, false)
   }
 
   const projectPosts = await state.database.tables.projectPost.getAll(id)
   for (const projectPost of projectPosts) {
-    await state.syncService.syncPost(projectPost.postUrl)
+    await state.syncService.syncPost(projectPost.postUrl, false)
   }
 }
 
@@ -65,7 +65,7 @@ const getProject = async (state: State, id: string, isFresh: boolean): Promise<P
 }
 
 const addThing = async (state: State, projectId: string, thingUrl: string): Promise<PostThingSync | FeedAndPostThingSync> => {
-  const thing = await state.syncService.syncSsUrl(thingUrl, true)
+  const thing = await state.syncService.syncSsUrl(thingUrl, true, false)
   if (thing.kind === ThingKind.Post) {
     await state.database.tables.projectPost.upsert(projectId, thing.data.url)
     await state.database.tables.projectPostFeeling.upsert(projectId, thing.data.url, { isSeen: true, stars: 0 })

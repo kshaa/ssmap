@@ -28,7 +28,7 @@ export const initServices = async (config: Config): Promise<Services> => {
   const ssProjectService = buildSsProjectService(database, ssSynchronizer)
   
   logger.info('Running SS Synchronizer Job')
-  runSsSynchronizerJob(database, ssSynchronizer)
+  runSsSynchronizerJob(ssSynchronizer)
 
   logger.info('Services initialized')
   return {

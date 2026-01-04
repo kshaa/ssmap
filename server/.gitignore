@@ -5,4 +5,4 @@
 /dist
 
 # sqlite db
-database.db
+database*

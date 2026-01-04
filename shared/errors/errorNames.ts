@@ -3,5 +3,6 @@ export enum ErrorNames {
   ParseError = 'ParseError',
   UnknownError = 'UnknownError',
   NotFoundError = 'NotFoundError',
+  UnauthorizedError = 'UnauthorizedError',
   ObfuscatedError = 'ObfuscatedError',
 }

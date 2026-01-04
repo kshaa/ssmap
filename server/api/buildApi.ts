@@ -4,6 +4,7 @@ import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
 import thingRouter from './routes/thing'
 import projectRouter from './routes/project'
+import internalRouter from './routes/internal'
 import { BaseError } from '@shared/errors/base'
 import { UnknownError } from '@shared/errors/unknownError'
 import { NotFoundError } from '@shared/errors/notFoundError'
@@ -12,7 +13,7 @@ import { ParseError } from '@shared/errors/parseError'
 import { App } from './utils'
 
 const attachEndpoints = (app: App) => {
-  const routers = [thingRouter, projectRouter]
+  const routers = [thingRouter, projectRouter, internalRouter]
 
   for (const router of routers) {
     router.prefix('/api')

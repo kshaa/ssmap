@@ -41,7 +41,7 @@ describe('SSSynchronizerService', () => {
       .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
 
     // Synchronize everything and verify output
-    const result = await synchronizer.syncFeedAndPosts('https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml', false)
+    const result = await synchronizer.syncFeedAndPosts('https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml', false, false)
     
     const postData = {
       "addressInfo": {
@@ -131,7 +131,7 @@ describe('SSSynchronizerService', () => {
     nock('https://www.ss.lv')
       .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnl.html')
       .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
-    const result2 = await synchronizer.syncFeedAndPosts('https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml', false)
+    const result2 = await synchronizer.syncFeedAndPosts('https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml', false, false)
     sinon.assert.match(result2, {
       ...expected,
       feed: {
@@ -148,7 +148,7 @@ describe('SSSynchronizerService', () => {
     nock('https://www.ss.lv')
       .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html')
       .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
-    const result3 = await synchronizer.syncSsUrl('https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html', false)
+    const result3 = await synchronizer.syncSsUrl('https://www.ss.lv/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html', false, false)
     sinon.assert.match(result3, {
       kind: ThingKind.Post,
       data: {
@@ -167,7 +167,7 @@ describe('SSSynchronizerService', () => {
     nock('https://www.ss.lv')
       .get('/msg/lv/real-estate/homes-summer-residences/riga-region/olaines-pag/peternieki/hilnj.html')
       .reply(200, (await loadDocumentWithUrlFixture('post.html')).text)
-    const result4 = await synchronizer.syncSsUrl('https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml', true)
+    const result4 = await synchronizer.syncSsUrl('https://www.ss.lv/rss/real-estate/homes-summer-residences/riga/centre.xml', true, false)
     sinon.assert.match(result4, {
       kind: ThingKind.FeedAndPosts,
       data: { 
