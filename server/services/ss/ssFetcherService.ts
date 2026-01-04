@@ -104,7 +104,7 @@ const fetchParsedListingPage = async (rawUrl: string): Promise<ParsedFeedWithUrl
   let pageNumber: number = 1
   let posts: PostReference[] = []
   while (!isDone) {
-    if (pageNumber > 100) throw new UnknownError('Listing page limit reached', { url })
+    if (pageNumber > 1000) throw new UnknownError('Listing page limit reached', { url })
     const pageUrl = `${urlWithoutTrailingSlash}/page${pageNumber}.html`
     try {
       const data = await fetchParsedListingPageSingle(pageUrl)
