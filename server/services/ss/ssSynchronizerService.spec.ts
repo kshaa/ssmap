@@ -69,6 +69,10 @@ describe('SSSynchronizerService', () => {
         "amount": 149400,
         "currency": "€",
       },
+      "areaStructured": {
+        "amount": 160,
+        "unit": "m²",
+      },
       "title": "Pārdod māju ar iekšējo apdari, tikai 4 km attālumā no Olaines. Līdz īpašumam ved asfaltēts ceļš. Dzelzsbetona pamati, gāzbetona sienas, betona plātņu pārsegumi. Kopējā platība 160 m², papildus plašas bēniņu telpas, kuras iespējams pielāgot dzīvošanai",
     }
     

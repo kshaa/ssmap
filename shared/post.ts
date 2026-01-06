@@ -6,6 +6,16 @@ export interface StructuredPrice {
   period?: string
 }
 
+export interface AreaStructured {
+  amount: number
+  unit: string
+}
+
+export const areaStructuredSchema = z.object({
+  amount: z.number(),
+  unit: z.string(),
+})
+
 export const structuredPriceSchema = z.object({
   amount: z.number(),
   currency: z.string().optional(),
@@ -50,6 +60,7 @@ export const genericInfoSchema = z.record(z.string(), z.string())
 export interface ParsedPost {
   addressInfo: AddressInfo
   genericInfo: GenericInfo
+  areaStructured?: AreaStructured | null
   price?: string | null
   priceStructured?: StructuredPrice | null
   title?: string | null
