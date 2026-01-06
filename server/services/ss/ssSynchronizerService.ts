@@ -29,7 +29,7 @@ const initState = (database: DatabaseService, fetcher: SSFetcherService): State 
   // To be fair, we could do a lot more limiting, but I doubt anyone besides me would use this code :sweat_smile:
   // If you're reading this and you're not me, please feel free to improve the concurrency control.
   // E.g. we could limit the number of requests per minute, or per IP address, or per user agent, etc.
-  const queue = new PQueue({ concurrency: 1 })
+  const queue = new PQueue({ concurrency: 15 })
 
   return {
     database,
