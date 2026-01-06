@@ -147,6 +147,10 @@ const PostList = ({ postList, postRatings, ratePost, focusPost, isHorizontal = f
             <span>{post.data.price}</span>
           </div>
           <div>
+            <strong>Platība: </strong>
+            <span>{post.data.genericInfo['Platība']}</span>
+          </div>
+          <div>
             <strong>Saite: </strong>
             <a href={post.url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>Apskatīt</a>
           </div>

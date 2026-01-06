@@ -14,12 +14,16 @@ const DEFAULT_SHOW_SEEN_FILTER = true
 const DEFAULT_SHOW_UNSEEN_FILTER = true
 const DEFAULT_MIN_PRICE = null
 const DEFAULT_MAX_PRICE = null
+const DEFAULT_MIN_AREA = null
+const DEFAULT_MAX_AREA = null
 interface FilterSettings {
   starFilter: number
   showSeenFilter: boolean
   showUnseenFilter: boolean
   minPrice: number | null
   maxPrice: number | null
+  minArea: number | null
+  maxArea: number | null
 }
 
 // Functions to persist filter settings in query parameters
@@ -29,6 +33,10 @@ const getFilterSettingsFromQueryParams = (): FilterSettings => {
   if (isNaN(queryMinPrice)) queryMinPrice = null
   let queryMaxPrice: number | null = queryParams.has('maxPrice') ? parseInt(queryParams.get('maxPrice') as string) : NaN
   if (isNaN(queryMaxPrice)) queryMaxPrice = null
+  let queryMinArea: number | null = queryParams.has('minArea') ? parseInt(queryParams.get('minArea') as string) : NaN
+  if (isNaN(queryMinArea)) queryMinArea = null
+  let queryMaxArea: number | null = queryParams.has('maxArea') ? parseInt(queryParams.get('maxArea') as string) : NaN
+  if (isNaN(queryMaxArea)) queryMaxArea = null
 
   return {
     starFilter: queryParams.has('starFilter') ? parseInt(queryParams.get('starFilter') ?? DEFAULT_STAR_FILTER.toString()) : DEFAULT_STAR_FILTER,
@@ -36,6 +44,8 @@ const getFilterSettingsFromQueryParams = (): FilterSettings => {
     showUnseenFilter: queryParams.has('showUnseenFilter') ? queryParams.get('showUnseenFilter') === 'true' : DEFAULT_SHOW_UNSEEN_FILTER,
     minPrice: queryMinPrice ?? DEFAULT_MIN_PRICE,
     maxPrice: queryMaxPrice ?? DEFAULT_MAX_PRICE,
+    minArea: queryMinArea ?? DEFAULT_MIN_AREA,
+    maxArea: queryMaxArea ?? DEFAULT_MAX_AREA,
   }
 }
 
@@ -48,6 +58,14 @@ const setFilterSettingsInQueryParams = (filterSettings: FilterSettings) => {
   else queryParams.delete('showSeenFilter')
   if (filterSettings.showUnseenFilter !== DEFAULT_SHOW_UNSEEN_FILTER) queryParams.set('showUnseenFilter', filterSettings.showUnseenFilter.toString())
   else queryParams.delete('showUnseenFilter')
+  if (filterSettings.minPrice !== DEFAULT_MIN_PRICE) queryParams.set('minPrice', filterSettings.minPrice.toString())
+  else queryParams.delete('minPrice')
+  if (filterSettings.maxPrice !== DEFAULT_MAX_PRICE) queryParams.set('maxPrice', filterSettings.maxPrice.toString())
+  else queryParams.delete('maxPrice')
+  if (filterSettings.minArea !== DEFAULT_MIN_AREA) queryParams.set('minArea', filterSettings.minArea.toString())
+  else queryParams.delete('minArea')
+  if (filterSettings.maxArea !== DEFAULT_MAX_AREA) queryParams.set('maxArea', filterSettings.maxArea.toString())
+  else queryParams.delete('maxArea')
   window.history.pushState({}, '', `?${queryParams.toString()}`)
 }
 
@@ -57,13 +75,16 @@ export const useThingManagement = (projectManagement: ProjectManagement, isLands
   const [mapZoom, setMapZoom] = useState<number>(latviaZoom)
   const [focusedPost, setFocusedPost] = useState<ParsedPostWithUrl | null>(null)
 
-  const { starFilter: persistedStarFilter, showSeenFilter: persistedShowSeenFilter, showUnseenFilter: persistedShowUnseenFilter, minPrice: persistedMinPrice, maxPrice: persistedMaxPrice } = getFilterSettingsFromQueryParams()
+  const persistedFilter = getFilterSettingsFromQueryParams()
+  console.log('persistedFilter', persistedFilter)
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
-    starFilter: persistedStarFilter,
-    showSeenFilter: persistedShowSeenFilter,
-    showUnseenFilter: persistedShowUnseenFilter,
-    minPrice: persistedMinPrice,
-    maxPrice: persistedMaxPrice,
+    starFilter: persistedFilter.starFilter,
+    showSeenFilter: persistedFilter.showSeenFilter,
+    showUnseenFilter: persistedFilter.showUnseenFilter,
+    minPrice: persistedFilter.minPrice,
+    maxPrice: persistedFilter.maxPrice,
+    minArea: persistedFilter.minArea,
+    maxArea: persistedFilter.maxArea,
   })
 
   const adjustStarFilter = useCallback((stars: number) => {
@@ -92,6 +113,18 @@ export const useThingManagement = (projectManagement: ProjectManagement, isLands
 
   const adjustMaxPrice = useCallback((maxPrice: number | null) => {
     const newFilterSettings = { ...filterSettings, maxPrice: maxPrice }
+    setFilterSettings(newFilterSettings)
+    setFilterSettingsInQueryParams(newFilterSettings)
+  }, [filterSettings, setFilterSettings])
+
+  const adjustMinArea = useCallback((minArea: number | null) => {
+    const newFilterSettings = { ...filterSettings, minArea: minArea }
+    setFilterSettings(newFilterSettings)
+    setFilterSettingsInQueryParams(newFilterSettings)
+  }, [filterSettings, setFilterSettings])
+
+  const adjustMaxArea = useCallback((maxArea: number | null) => {
+    const newFilterSettings = { ...filterSettings, maxArea: maxArea }
     setFilterSettings(newFilterSettings)
     setFilterSettingsInQueryParams(newFilterSettings)
   }, [filterSettings, setFilterSettings])
@@ -210,11 +243,10 @@ export const useThingManagement = (projectManagement: ProjectManagement, isLands
       if (filterSettings.starFilter > 0 && (postRatings[post.url]?.stars ?? 0) < filterSettings.starFilter) return false
       if (!filterSettings.showSeenFilter && postRatings[post.url]?.isSeen) return false
       if (!filterSettings.showUnseenFilter && !postRatings[post.url]?.isSeen) return false
-      if (filterSettings.minPrice !== null && (post.data.priceStructured?.amount ?? 0) <= filterSettings.minPrice) {
-        console.log('Min price filter', post.data, filterSettings.minPrice)
-        return false
-      }
-      if (filterSettings.maxPrice !== null && (post.data.priceStructured?.amount ?? 0) >= filterSettings.maxPrice) return false
+      if (filterSettings.minPrice !== null && (post.data.priceStructured?.amount ?? 0) < filterSettings.minPrice) return false
+      if (filterSettings.maxPrice !== null && (post.data.priceStructured?.amount ?? 0) > filterSettings.maxPrice) return false
+      if (filterSettings.minArea !== null && (post.data.areaStructured?.amount ?? 0) < filterSettings.minArea) return false
+      if (filterSettings.maxArea !== null && (post.data.areaStructured?.amount ?? 0) > filterSettings.maxArea) return false
       return true
     })
   }, [projectWithContent, filterSettings, postRatings])
@@ -228,6 +260,8 @@ export const useThingManagement = (projectManagement: ProjectManagement, isLands
     adjustShowUnseenFilter,
     adjustMinPrice,
     adjustMaxPrice,
+    adjustMinArea,
+    adjustMaxArea,
     mapCenterCoordinates,
     mapZoom,
     focusedPost,

@@ -69,10 +69,11 @@ export interface ParsedPost {
 export const parsedPostSchema = z.object({
   addressInfo: addressInfoSchema,
   genericInfo: genericInfoSchema,
+  areaStructured: areaStructuredSchema.nullable().optional(),
   price: z.string().nullable().optional(),
   priceStructured: structuredPriceSchema.nullable().optional(),
   title: z.string().nullable().optional(),
-})
+}) satisfies z.ZodType<ParsedPost>
 
 export interface ParsedPostWithUrl {
   url: string

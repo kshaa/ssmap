@@ -66,8 +66,10 @@ export const PostManagement = ({
   addErrorMessage, 
   thingManagement,
 }: PostManagementProps) => {
-  const [minPriceText, setMinPriceText] = useState<string>('')
-  const [maxPriceText, setMaxPriceText] = useState<string>('')
+  const [minPriceText, setMinPriceText] = useState<string>(thingManagement.filterSettings.minPrice?.toString() ?? '')
+  const [maxPriceText, setMaxPriceText] = useState<string>(thingManagement.filterSettings.maxPrice?.toString() ?? '')
+  const [minAreaText, setMinAreaText] = useState<string>(thingManagement.filterSettings.minArea?.toString() ?? '')
+  const [maxAreaText, setMaxAreaText] = useState<string>(thingManagement.filterSettings.maxArea?.toString() ?? '')
   const { projectWithContent, filterSettings, postList, postRatings, appendPosts, focusPost, ratePost } = thingManagement
   const { showSeenFilter, showUnseenFilter, starFilter, minPrice, maxPrice } = filterSettings
 
@@ -83,6 +85,20 @@ export const PostManagement = ({
     const numerical = maxPriceInput.trim() === '' ? null : parseInt(maxPriceInput)
     if (numerical !== null && isNaN(numerical)) return
     thingManagement.adjustMaxPrice(numerical)
+  }
+
+  const handleMinAreaChange = (minAreaInput: string) => {
+    setMinAreaText(minAreaInput)
+    const numerical = minAreaInput.trim() === '' ? null : parseInt(minAreaInput)
+    if (numerical !== null && isNaN(numerical)) return
+    thingManagement.adjustMinArea(numerical)
+  }
+
+  const handleMaxAreaChange = (maxAreaInput: string) => {
+    setMaxAreaText(maxAreaInput)
+    const numerical = maxAreaInput.trim() === '' ? null : parseInt(maxAreaInput)
+    if (numerical !== null && isNaN(numerical)) return
+    thingManagement.adjustMaxArea(numerical)
   }
 
   const handleStarFilterChange = (stars: number) => {
@@ -132,6 +148,14 @@ export const PostManagement = ({
           <SingleFilter>
             <span>Max. cena</span>
             <ColoredInput type="text" value={maxPriceText} onChange={(e) => handleMaxPriceChange(e.target.value)} isValid={maxPriceText === '' || !isNaN(parseInt(maxPriceText))} />
+          </SingleFilter>
+          <SingleFilter>
+            <span>Min. platība</span>
+            <ColoredInput type="text" value={minAreaText} onChange={(e) => handleMinAreaChange(e.target.value)} isValid={minAreaText === '' || !isNaN(parseInt(minAreaText))} />
+          </SingleFilter>
+          <SingleFilter>
+            <span>Max. platība</span>
+            <ColoredInput type="text" value={maxAreaText} onChange={(e) => handleMaxAreaChange(e.target.value)} isValid={maxAreaText === '' || !isNaN(parseInt(maxAreaText))} />
           </SingleFilter>
           <SingleFilter>
             <button onClick={handleRefreshProjectWithContent}>Atjaunot sludinājumus</button>
